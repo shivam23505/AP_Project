@@ -1,0 +1,8 @@
+Angry Birds background.jpg
+AngryBirdsButton.jpg
+BronacoDemoRegular.ttf
+button.png
+offbutton.png
+onbutton.jpg
+play.png
+settings page.jpeg
