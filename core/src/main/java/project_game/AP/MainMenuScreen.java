@@ -2,8 +2,11 @@ package project_game.AP;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -20,6 +23,7 @@ public class MainMenuScreen implements Screen {
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
+
     }
 
     @Override
@@ -43,7 +47,7 @@ public class MainMenuScreen implements Screen {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
             camera.unproject(touchPos);
             if(touchPos.x>300 && touchPos.x<500 && touchPos.y>120 && touchPos.y<195){
-                game.setScreen(new GameScreen(game));
+                game.setScreen(game.gameScreen);
                 dispose();
             }
         }
