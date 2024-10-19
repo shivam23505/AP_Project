@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class GameScreen implements Screen {
     final Structure game;
-    Texture background;
+    private Texture background;
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private BitmapFont font;
@@ -66,6 +66,15 @@ public class GameScreen implements Screen {
                 Gdx.app.exit();
             }
         });
+
+        levelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new LevelSelector(game));
+                dispose();
+            }
+        });
+
         table.add(levelButton).padBottom(20).width(200).height(75).row();
         table.add(settingsButton).padBottom(20).width(200).height(75).row();
         table.add(quitButton).width(200).height(75);
@@ -111,9 +120,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        if (background!=null){background.dispose();}
+        if (font!=null){font.dispose();}
+        if (fontGenerator!=null){fontGenerator.dispose();}
         stage.dispose();
-        background.dispose();
-        font.dispose();
-        fontGenerator.dispose();
     }
 }

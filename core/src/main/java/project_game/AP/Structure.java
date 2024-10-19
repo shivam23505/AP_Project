@@ -22,10 +22,10 @@ public class Structure extends Game {
     }
 
     public void dispose() {
-        gameScreen.dispose();
+        if (gameScreen!=null){gameScreen.dispose();}
         settings.dispose();
+        if(font!=null){font.dispose();}
         batch.dispose();
-        font.dispose();
     }
 
 }
