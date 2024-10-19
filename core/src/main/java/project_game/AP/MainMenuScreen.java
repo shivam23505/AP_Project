@@ -15,15 +15,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class MainMenuScreen implements Screen {
     final Structure game;
     OrthographicCamera camera;
-    Texture Background;
-    Texture play;
+    private Texture Background;
+    private Texture play;
     public MainMenuScreen(final Structure game) {
         this.game = game;
         Background=new Texture("Angry Birds Background.jpg");
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
-
     }
 
     @Override
@@ -75,7 +74,8 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        if (Background!=null){Background.dispose();}
+        if (play!=null){play.dispose();}
     }
 
 }

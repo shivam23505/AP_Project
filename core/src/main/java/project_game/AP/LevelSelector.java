@@ -2,6 +2,7 @@ package project_game.AP;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
@@ -18,11 +20,15 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 public class LevelSelector implements Screen {
     final Structure game;
     OrthographicCamera camera;
-    private Texture background,buttonImage,menubg;
+    private Texture background,buttonImage,menubg,buttondown;
     private Texture menuPlay,menuBack;
     private Stage stage;
     private Skin skin;
-    private BitmapFont font;
+    private BitmapFont font,btnFont;
+    private FreeTypeFontGenerator fontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    private FreeTypeFontGenerator buttonFontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter buttonFontParameter;
 
     public LevelSelector(Structure game) {
         this.game = game;
@@ -32,31 +38,52 @@ public class LevelSelector implements Screen {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         font = new BitmapFont();
-        buttonImage = new Texture("wooden_button.png");
+        buttonImage = new Texture("button.png");
         menubg = new Texture("menubg3.png");
         menuPlay = new Texture("menu_play_btn.png");
         menuBack = new Texture("menu_back_btn.png");
-//        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("arial.ttf"));
-//        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-//        parameter.size = 36;  // Set the font size for the buttons
-//        font = generator.generateFont(parameter);
-//        generator.dispose();  // Dispose the generator when done
+        buttondown = new Texture("button_down.png");
+
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("BronacoDemoRegular.ttf"));
+        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size = 40;
+        fontParameter.borderWidth = 3;
+        fontParameter.borderColor = Color.YELLOW;
+        fontParameter.color = Color.BLACK;
+        font = fontGenerator.generateFont(fontParameter);
+
+        buttonFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
+        buttonFontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        buttonFontParameter.size = 40;
+        buttonFontParameter.borderWidth = 2;
+        buttonFontParameter.color = Color.BLACK;
+        btnFont = buttonFontGenerator.generateFont(buttonFontParameter);
+
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle();
         style.up = new TextureRegionDrawable(new TextureRegion(buttonImage)); // Set button background
-        style.font = font;
+        style.down = new TextureRegionDrawable(new TextureRegion(buttondown));
+        style.font = btnFont;
 
         ImageTextButton levelOne = new ImageTextButton("1", style);
         ImageTextButton levelTwo = new ImageTextButton("2", style);
         ImageTextButton levelThree = new ImageTextButton("3", style);
 
-        float buttonWidth = 150f;
-        float buttonHeight = 100f;
+        float buttonWidth = 100f;
+        float buttonHeight = 50f;
         levelOne.setSize(buttonWidth, buttonHeight);
+        levelOne.getLabelCell().minSize(buttonWidth, buttonHeight);
+        levelOne.getLabelCell().prefSize(buttonWidth, buttonHeight);
+
         levelTwo.setSize(buttonWidth, buttonHeight);
+        levelTwo.getLabelCell().minSize(buttonWidth, buttonHeight);
+        levelTwo.getLabelCell().prefSize(buttonWidth, buttonHeight);
+
         levelThree.setSize(buttonWidth, buttonHeight);
+        levelThree.getLabelCell().minSize(buttonWidth, buttonHeight);
+        levelThree.getLabelCell().prefSize(buttonWidth, buttonHeight);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = font;  // Use the same font or create a new one for the label
@@ -72,35 +99,36 @@ public class LevelSelector implements Screen {
         table.row();  // Move to the next row
 
         // Add buttons in the next row, evenly spaced
-        table.add(levelOne).size(150, 100).pad(10);
-        table.add(levelTwo).size(150, 100).pad(10);
-        table.add(levelThree).size(150, 100).pad(10);
+        table.add(levelOne).size(100, 50).pad(10);
+        table.add(levelTwo).size(100, 50).pad(10);
+        table.add(levelThree).size(100, 50).pad(10);
         table.center();  // Center the table on the screen
-
+        table.invalidate();
         // Add the table to the stage
         stage.addActor(table);
 
         levelOne.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                showMenuPopup();
+                showMenuPopup("Level 1");
             }
         });
         levelTwo.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                showMenuPopup();
+                showMenuPopup("Level 2");
             }
         });
         levelThree.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                showMenuPopup();
+                showMenuPopup("Level 3");
             }
         });
+
     }
 
-    private void showMenuPopup() {
+    private void showMenuPopup(String levelName) {
         Dialog dialog = new Dialog("", skin) {
             @Override
             public void result(Object obj) {
@@ -109,12 +137,19 @@ public class LevelSelector implements Screen {
         dialog.setBackground(new TextureRegionDrawable(new TextureRegion(menubg)));
 
         // Create buttons from images
-        Skin skin = new Skin();
-        skin.add("button1Image", new TextureRegion(menuPlay));
-        skin.add("button2Image", new TextureRegion(menuBack));
+        Skin popupskin = new Skin();
+        popupskin.add("button1Image", new TextureRegion(menuPlay));
+        popupskin.add("button2Image", new TextureRegion(menuBack));
 
-        ImageButton button1 = new ImageButton(skin.getDrawable("button1Image"));
-        ImageButton button2 = new ImageButton(skin.getDrawable("button2Image"));
+        TextButton.TextButtonStyle topStyle = new TextButton.TextButtonStyle();
+        topStyle.font = btnFont;
+        topStyle.up = new TextureRegionDrawable(new TextureRegion(buttonImage));
+
+        TextButton btn = new TextButton(levelName, topStyle);
+        btn.setSize(btn.getWidth(), btn.getHeight());
+
+        ImageButton button1 = new ImageButton(popupskin.getDrawable("button1Image"));
+        ImageButton button2 = new ImageButton(popupskin.getDrawable("button2Image"));
 
         button1.addListener(new ClickListener() {
             @Override
@@ -127,17 +162,24 @@ public class LevelSelector implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Button 2 clicked!");
+                dialog.hide();
             }
         });
 
         // Add buttons to the dialog
-        dialog.getContentTable().add(button1).padTop(80).padBottom(10).row();
-        dialog.getContentTable().add(button2).padBottom(10);
+        Table table2 = new Table();
+        table2.setFillParent(true);
+        table2.add(btn).align(Align.top).colspan(2).padBottom(80).padTop(-10);
+        table2.row();
+        table2.add(button1).padBottom(10);
+        table2.row();
+        table2.add(button2).padTop(10);
 
+        dialog.getContentTable().add(table2).fill().expand();
         // Set dialog size and position
-        dialog.setSize(300, 200);  // Adjust as needed
-        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth() / 2,
-            Gdx.graphics.getHeight() / 2 - dialog.getHeight() / 2);
+//        dialog.setSize(300, 200);  // Adjust as needed
+//        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth() / 2,
+//            Gdx.graphics.getHeight() / 2 - dialog.getHeight() / 2);
 
         // Show the dialog on the stage
         dialog.show(stage);
@@ -183,13 +225,16 @@ public class LevelSelector implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
-        background.dispose();
-        buttonImage.dispose();
-        menuPlay.dispose();
-        menuBack.dispose();
-        menubg.dispose();
-        font.dispose();
+        if (skin!=null){skin.dispose();}
+        if (background!=null){background.dispose();}
+        if (buttonImage!=null){buttonImage.dispose();}
+        if (menuPlay!=null){menuPlay.dispose();}
+        if (menuBack!=null){menuBack.dispose();}
+        if (menubg!=null){menubg.dispose();}
+        if (font!=null){font.dispose();}
+        if (btnFont!=null){btnFont.dispose();}
+        if (fontGenerator!=null){fontGenerator.dispose();}
+        if (buttonFontGenerator!=null){buttonFontGenerator.dispose();}
+        if (stage!=null){stage.dispose();}
     }
 }
