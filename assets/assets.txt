@@ -7,7 +7,11 @@ BronacoDemoRegular.ttf
 button-image.jpeg
 button.png
 button_down.png
+hs_err_pid9636.log
 Level1at1.tmx
+Level_Two_bg.jpg
+level_two_map.tmx
+main.tsx
 menubg.jpg
 menubg3.png
 menu_back_btn.png
@@ -15,6 +19,7 @@ menu_button.jpg
 menu_play_btn.png
 offbutton.png
 onbutton.jpg
+pauseButton.png
 play.png
 settings page.jpeg
 ts1.tsx
@@ -25,4 +30,5 @@ ui/font.fnt
 ui/uiskin.atlas
 ui/uiskin.json
 ui/uiskin.png
+Wooden_block.png
 wooden_button.png
