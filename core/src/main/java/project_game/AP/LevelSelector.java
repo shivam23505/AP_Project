@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+import java.util.Objects;
 
 public class LevelSelector implements Screen {
     final Structure game;
@@ -125,7 +126,6 @@ public class LevelSelector implements Screen {
                 showMenuPopup("Level 3");
             }
         });
-
     }
 
     private void showMenuPopup(String levelName) {
@@ -154,7 +154,10 @@ public class LevelSelector implements Screen {
         button1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Button 1 clicked!");
+                if (Objects.equals(levelName, "Level 2")){
+                    game.setScreen(game.levelTwo);
+                }
+                dispose();
             }
         });
 

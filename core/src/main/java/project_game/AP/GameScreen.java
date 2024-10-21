@@ -47,7 +47,7 @@ public class GameScreen implements Screen {
         TextureRegionDrawable drawable = new TextureRegionDrawable(buttonTexture);
         Table table = new Table();
         table.setFillParent(true); // Center the table on the screen
-        table.setDebug(true); // Enable debug to see button boundaries
+//        table.setDebug(true); // Enable debug to see button boundaries
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = drawable; // Set the button's appearance
         textButtonStyle.font = font;
@@ -70,7 +70,7 @@ public class GameScreen implements Screen {
         levelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new Level2(game));
+                game.setScreen(new LevelSelector(game));
                 dispose();
             }
         });

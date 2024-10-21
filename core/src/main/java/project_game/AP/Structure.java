@@ -10,11 +10,13 @@ public class Structure extends Game {
     public BitmapFont font;
     public GameScreen gameScreen;
     public Settings settings;
+    public LevelTwo levelTwo;
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont(); // use libGDX's default Arial font
         gameScreen=new GameScreen(this);
         settings=new Settings(this);
+        levelTwo = new LevelTwo(this);
         this.setScreen(new MainMenuScreen(this));
     }
     public void render() {
