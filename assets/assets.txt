@@ -7,6 +7,7 @@ BronacoDemoRegular.ttf
 button-image.jpeg
 button.png
 button_down.png
+Level1at1.tmx
 menubg.jpg
 menubg3.png
 menu_back_btn.png
@@ -16,6 +17,7 @@ offbutton.png
 onbutton.jpg
 play.png
 settings page.jpeg
+ts1.tsx
 ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt
