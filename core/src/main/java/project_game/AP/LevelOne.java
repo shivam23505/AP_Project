@@ -57,7 +57,9 @@ public class LevelOne implements Screen {
 
     // Constant for tile size (adjust according to your tile size)
     private static final float TILE_SIZE = 16.0f;
-
+    private float elapsed=0;
+    private boolean background_changedw=false;
+    private boolean background_changedl=false;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -166,11 +168,43 @@ public class LevelOne implements Screen {
         // Draw UI elements on the stage
 //        stage.act();
 //        stage.draw();
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-                LevelSelector.level1complete=true;
-                game.setScreen(game.levelSelector);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            if (!background_changedw) {
+                LevelSelector.level1complete = true;
+                background = new Texture("LevelComplete.jpg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedw = true;  // Set flag to avoid resetting on every frame
             }
         }
+
+        if (background_changedw) {
+            elapsed += delta;
+            game.batch.begin();
+            game.batch.draw(background, 0, 0, 800, 480);  // Ensure the new background is drawn
+            game.batch.end();
+            if (elapsed >= 2) {
+                game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+            }
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+            if (!background_changedl) {
+                background = new Texture("levelfailed.jpeg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedl = true;  // Set flag to avoid resetting on every frame
+            }
+        }
+
+        if (background_changedl) {
+            elapsed += delta;
+            game.batch.begin();
+            game.batch.draw(background, 0, 0, 800, 480);  // Ensure the new background is drawn
+            game.batch.end();
+            if (elapsed >= 2) {
+                game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+            }
+        }
+
+    }
 
 
     @Override

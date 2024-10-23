@@ -27,7 +27,7 @@ public class GameScreen implements Screen {
 
     public GameScreen(final Structure game) {
         this.game = game;
-        background = new Texture("Angry Birds background.jpg");
+        background = new Texture("AngryBirdsBG2.jpeg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("BronacoDemoRegular.ttf"));

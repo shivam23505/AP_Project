@@ -30,6 +30,15 @@ public class LevelSelector implements Screen {
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private FreeTypeFontGenerator buttonFontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter buttonFontParameter;
+    private Texture levelComplete,levelCantAttempt;
+    private ImageTextButton levelOne,levelTwo,levelThree;
+    public static boolean level1available=true;
+    public static boolean level2available=false;
+    public static boolean level3available=false;
+    public static boolean level1complete=false;
+    public static boolean level2complete=false;
+    public static boolean level3complete=false;
+
 
     public LevelSelector(Structure game) {
         this.game = game;
@@ -68,9 +77,11 @@ public class LevelSelector implements Screen {
         style.down = new TextureRegionDrawable(new TextureRegion(buttondown));
         style.font = btnFont;
 
-        ImageTextButton levelOne = new ImageTextButton("1", style);
-        ImageTextButton levelTwo = new ImageTextButton("2", style);
-        ImageTextButton levelThree = new ImageTextButton("3", style);
+        levelComplete = new Texture("levelcompletedgreen.jpeg");
+        levelCantAttempt = new Texture("levelcompletedgrey.jpeg");
+        levelOne = new ImageTextButton("1", style);
+        levelTwo = new ImageTextButton("2", style);
+        levelThree = new ImageTextButton("3", style);
 
         float buttonWidth = 100f;
         float buttonHeight = 50f;
@@ -87,25 +98,21 @@ public class LevelSelector implements Screen {
         levelThree.getLabelCell().prefSize(buttonWidth, buttonHeight);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = font;  // Use the same font or create a new one for the label
+        labelStyle.font = font;
         Label selectLevelLabel = new Label("Select Level", labelStyle);
 
-        // Create a table to arrange the label and buttons
         Table table = new Table();
-        table.setFillParent(true);  // Make the table fill the screen
+        table.setFillParent(true);
 
-        // Add the "Select Level" label at the top
-        table.top();  // Align table content to the top
+        table.top();
         table.add(selectLevelLabel).padTop(-100).padBottom(100).colspan(3).center();  // Center the label at the top and add some padding
-        table.row();  // Move to the next row
-
-        // Add buttons in the next row, evenly spaced
+        table.row();
         table.add(levelOne).size(100, 50).pad(10);
         table.add(levelTwo).size(100, 50).pad(10);
         table.add(levelThree).size(100, 50).pad(10);
-        table.center();  // Center the table on the screen
+        table.center();
         table.invalidate();
-        // Add the table to the stage
+
         stage.addActor(table);
 
         levelOne.addListener(new ClickListener() {
@@ -118,6 +125,7 @@ public class LevelSelector implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showMenuPopup("Level 2");
+                System.out.println("Level 2 button");
             }
         });
         levelThree.addListener(new ClickListener() {
@@ -136,7 +144,6 @@ public class LevelSelector implements Screen {
         };
         dialog.setBackground(new TextureRegionDrawable(new TextureRegion(menubg)));
 
-        // Create buttons from images
         Skin popupskin = new Skin();
         popupskin.add("button1Image", new TextureRegion(menuPlay));
         popupskin.add("button2Image", new TextureRegion(menuBack));
@@ -155,7 +162,10 @@ public class LevelSelector implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (Objects.equals(levelName, "Level 2")){
-                    game.setScreen(game.levelTwo);
+                    game.setScreen(new LevelTwo(game));
+                }
+                else if (Objects.equals(levelName,"Level 1")){
+                    game.setScreen(new LevelOne(game));
                 }
                 dispose();
             }
@@ -169,7 +179,6 @@ public class LevelSelector implements Screen {
             }
         });
 
-        // Add buttons to the dialog
         Table table2 = new Table();
         table2.setFillParent(true);
         table2.add(btn).align(Align.top).colspan(2).padBottom(80).padTop(-10);
@@ -179,18 +188,53 @@ public class LevelSelector implements Screen {
         table2.add(button2).padTop(10);
 
         dialog.getContentTable().add(table2).fill().expand();
-        // Set dialog size and position
-//        dialog.setSize(300, 200);  // Adjust as needed
-//        dialog.setPosition(Gdx.graphics.getWidth() / 2 - dialog.getWidth() / 2,
-//            Gdx.graphics.getHeight() / 2 - dialog.getHeight() / 2);
 
-        // Show the dialog on the stage
         dialog.show(stage);
     }
 
+    private void updateLevelButton(){
+        ImageTextButton.ImageTextButtonStyle style2 = new ImageTextButton.ImageTextButtonStyle();
+        style2.up=new TextureRegionDrawable(new TextureRegion(levelComplete));
+        style2.font = btnFont;
+        ImageTextButton.ImageTextButtonStyle style = new ImageTextButton.ImageTextButtonStyle();
+        style.up = new TextureRegionDrawable(new TextureRegion(buttonImage)); // Set button background
+        style.down = new TextureRegionDrawable(new TextureRegion(buttondown));
+        style.font = btnFont;
+        ImageTextButton.ImageTextButtonStyle style1 = new ImageTextButton.ImageTextButtonStyle();
+        style1.up=new TextureRegionDrawable(new TextureRegion(levelCantAttempt));
+        style1.font = btnFont;
+
+        if(level1complete){
+            levelOne.setStyle(style2);
+            level2available=true;
+        }
+        if(!level2available){
+            levelTwo.setStyle(style1);
+        }
+        else{
+            if(level2complete){
+                levelTwo.setStyle(style1);
+                level3available=true;
+            }
+            else{
+                levelTwo.setStyle(style);
+            }
+        }
+        if(!level3available){
+            levelThree.setStyle(style1);
+        }
+        else{
+            if(level3complete){
+                levelThree.setStyle(style1);
+            }
+            else{
+                levelThree.setStyle(style2);
+            }
+        }
+    }
     @Override
     public void show() {
-
+        updateLevelButton();
     }
 
     @Override

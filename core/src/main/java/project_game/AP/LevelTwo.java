@@ -1,3 +1,4 @@
+
 package project_game.AP;
 
 import com.badlogic.gdx.Game;
@@ -95,7 +96,7 @@ public class LevelTwo implements Screen {
             }
         });
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("VarunChomu.tmx");
+        tiledMap = mapLoader.load("level_two_map.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         world = new World(new Vector2(0,0),true);
@@ -106,15 +107,15 @@ public class LevelTwo implements Screen {
         FixtureDef fdef = new FixtureDef();
         Body body;
 
-//        for (MapObject object : tiledMap.getLayers().get(1).getObjects().getByType(RectangleMapObject.class)) {
-//            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-//            bdef.type = BodyDef.BodyType.StaticBody;
-//            bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.y + rect.getHeight() / 2);
-//            body = world.createBody(bdef);
-//            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
-//            fdef.shape = shape;
-//            body.createFixture(fdef);
-//        }
+        for (MapObject object : tiledMap.getLayers().get(1).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            bdef.type = BodyDef.BodyType.StaticBody;
+            bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.y + rect.getHeight() / 2);
+            body = world.createBody(bdef);
+            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+            fdef.shape = shape;
+            body.createFixture(fdef);
+        }
     }
 
     @Override
