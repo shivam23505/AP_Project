@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="100" height="80" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="35">
+ <tileset firstgid="1" source="main.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="100" height="80">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACu3VSwrDMAwFQB+1p+1BunOSfo5QLVooQfFShmYGHgGthIJ5rQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPyPa2uXW2T2HmfXI0tkjWyRe+QxdaNz25I3kc2osSa3z2bUWJLbZzNq9M/tf/u8+x9THHX5M/KauNdZjXpbp9cb9bZOrzfqbZ1eb9TbOr3Wvsu/3/0cAACOvAFvQzySAH0AAA==
+  </data>
+ </layer>
+ <objectgroup id="4" name="Wooden_Blocks">
+  <object id="26" x="687.455" y="991.273" width="32.1818" height="16.1818"/>
+  <object id="27" x="656" y="1008" width="96" height="16"/>
+  <object id="28" x="656.364" y="1024" width="15.6364" height="64.1818"/>
+  <object id="29" x="736" y="1023.82" width="15.8182" height="64.1818"/>
+  <object id="30" x="687.455" y="1071.27" width="32.9091" height="16.5455"/>
+  <object id="31" x="639.455" y="1087.82" width="128.727" height="15.8182"/>
+  <object id="32" x="752.182" y="1104" width="15.8182" height="63.8182"/>
+  <object id="33" x="640.364" y="1104" width="15.2727" height="63.8182"/>
+  <object id="34" x="624.55" y="1168.18" width="159.091" height="15.6364"/>
+ </objectgroup>
+</map>
