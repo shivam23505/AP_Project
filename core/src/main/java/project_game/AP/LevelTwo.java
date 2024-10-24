@@ -34,6 +34,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import javax.swing.*;
 import java.util.Objects;
 
 public class LevelTwo implements Screen {
@@ -41,13 +42,11 @@ public class LevelTwo implements Screen {
     private Texture background;
     private OrthographicCamera camera;
     private Viewport viewport;
-    private Texture menuPlay,menuBack;
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private BitmapFont font;
     private Stage stage;
     private Skin skin;
-    private Texture buttonImage;
 
     //Tiled map variables
     private TmxMapLoader mapLoader;
@@ -79,20 +78,19 @@ public class LevelTwo implements Screen {
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
         fontParameter.borderWidth = 2;
-        fontParameter.color = Color.BLACK;
+        fontParameter.color = Color.WHITE;
         font = fontGenerator.generateFont(fontParameter);
 
-        buttonImage = new Texture("button.png");
+//        buttonImage = new Texture("button.png");
         skin = new Skin(Gdx.files.internal("ui/uiskin.json")); // Load a skin if you have one
-        menuPlay = new Texture("menu_play_btn.png");
+//        menuPlay = new Texture("menu_play_btn.png");
 ////
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
-        ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
         buttonStyle.imageUp = drawable;
         buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
-        buttonStyle.font = font;
 //
-        ImageTextButton pauseButton = new ImageTextButton("",buttonStyle);
+        ImageButton pauseButton = new ImageButton(buttonStyle);
 //
         pauseButton.setSize(50, 50);
 
@@ -140,29 +138,55 @@ public class LevelTwo implements Screen {
         overlayImage.setPosition(100, 0);
         overlayStage.addActor(overlayImage);
 
-        // Add two buttons to the overlay
-        TextButton button1 = new TextButton("RESUME", skin);
-        button1.setPosition(150, 100);
-        button1.addListener(new ClickListener() {
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button.png")));
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button_down.png")));
+
+        ImageButton continueButton = new ImageButton(buttonStyle);
+        continueButton.setSize(90, 90);
+//        TextButton button1 = new TextButton("RESUME", skin);
+//        button1.setPosition(150, 100);
+        continueButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showOverlay = false;
             }
         });
-        overlayStage.addActor(button1);
+//        overlayStage.addActor(continueButton);
 
-        TextButton button2 = new TextButton("QUIT", skin);
-        button2.setPosition(250, 100);
-        button2.addListener(new ClickListener() {
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button.png")));
+        ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
+        buttonStyle2.imageUp = drawable;
+        buttonStyle2.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button_down.png")));
+        ImageButton exitButton = new ImageButton(buttonStyle2);
+        exitButton.setSize(90, 90);
+
+//        TextButton button2 = new TextButton("QUIT", skin);
+//        button2.setPosition(250, 100);
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Button clicked");
+                game.setScreen(new LevelSelector(game));
                 dispose();
             }
         });
-        overlayStage.addActor(button2);
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = font;
+        Label label = new Label("PAUSED",labelStyle);
+//        overlayStage.addActor(exitButton);
+        Table table2 = new Table();
+        table2.setFillParent(true);
+//        table2.center();
+//        table2.row();
+        table2.add(label).padLeft(40).padTop(-90);
+        table2.row();
+        table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
+        table2.row();
+        table2.add(exitButton).center().padLeft(40);
 
-
+        overlayStage.addActor(table2);
     }
 
     @Override
@@ -194,6 +218,7 @@ public class LevelTwo implements Screen {
         stage.draw();
 //        stage.setDebugAll(true);
         if (showOverlay) {
+            Gdx.input.setInputProcessor(overlayStage);
             // Set translucency for the main screen background
 
             // Draw a translucent overlay (dim the background)
@@ -204,6 +229,9 @@ public class LevelTwo implements Screen {
             overlayStage.draw();
 
             // Disable the blending to restore normal rendering for future frames
+        }
+        else{
+            Gdx.input.setInputProcessor(stage);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
             game.batch.begin();
@@ -240,9 +268,6 @@ public class LevelTwo implements Screen {
         renderer.dispose();
         world.dispose();
         b2dr.dispose();
-        menuBack.dispose();
-        menuPlay.dispose();
-        buttonImage.dispose();
         fontGenerator.dispose();
         font.dispose();
         skin.dispose();

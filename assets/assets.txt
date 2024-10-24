@@ -13,7 +13,12 @@ BronacoDemoRegular.ttf
 button-image.jpeg
 button.png
 button_down.png
+continue_button.png
+continue_button_down.png
+exit_button.png
+exit_button_down.png
 hs_err_pid20776.log
+hs_err_pid23868.log
 hs_err_pid9636.log
 Level1at4.tmx
 LevelComplete.jpg
