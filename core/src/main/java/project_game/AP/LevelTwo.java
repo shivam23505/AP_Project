@@ -1,8 +1,8 @@
-
 package project_game.AP;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -22,12 +22,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -38,13 +41,13 @@ public class LevelTwo implements Screen {
     private Texture background;
     private OrthographicCamera camera;
     private Viewport viewport;
-
+    private Texture menuPlay,menuBack;
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private BitmapFont font;
     private Stage stage;
     private Skin skin;
-    private Texture pauseButton;
+    private Texture buttonImage;
 
     //Tiled map variables
     private TmxMapLoader mapLoader;
@@ -55,12 +58,19 @@ public class LevelTwo implements Screen {
     private World world;
     private Box2DDebugRenderer b2dr;
 
+    //Overlay
+    private Stage overlayStage;
+    private boolean showOverlay;
+
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
+
+        overlayStage = new Stage(new ScreenViewport());
+        showOverlay = false;
 
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -72,27 +82,32 @@ public class LevelTwo implements Screen {
         fontParameter.color = Color.BLACK;
         font = fontGenerator.generateFont(fontParameter);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        pauseButton = new Texture("pauseButton.png");
-
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-        style.up = new TextureRegionDrawable(new TextureRegion(pauseButton));
-
-        ImageButton btn = new ImageButton(style);
-        btn.setSize(btn.getWidth(),btn.getHeight());
+        buttonImage = new Texture("button.png");
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json")); // Load a skin if you have one
+        menuPlay = new Texture("menu_play_btn.png");
+////
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
+        ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
+        buttonStyle.font = font;
+//
+        ImageTextButton pauseButton = new ImageTextButton("",buttonStyle);
+//
+        pauseButton.setSize(50, 50);
 
         Table table = new Table();
         table.setFillParent(true);
-
-        table.top();
-        table.add(btn).right();
+        table.top().left();
+        table.add(pauseButton).size(100,100);
         stage.addActor(table);
-
-        btn.addListener(new ClickListener() {
+        pauseButton.setZIndex(stage.getActors().size-1);
+        pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                showPauseMenu();
-                dispose();
+                System.out.println("Button clicked");
+                showOverlay = true;
+                showPauseMenu();
             }
         });
         mapLoader = new TmxMapLoader();
@@ -116,6 +131,38 @@ public class LevelTwo implements Screen {
             fdef.shape = shape;
             body.createFixture(fdef);
         }
+
+  }
+    public void showPauseMenu(){
+        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
+        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
+        Image overlayImage = new Image(overlayImageDrawable);
+        overlayImage.setPosition(100, 0);
+        overlayStage.addActor(overlayImage);
+
+        // Add two buttons to the overlay
+        TextButton button1 = new TextButton("RESUME", skin);
+        button1.setPosition(150, 100);
+        button1.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showOverlay = false;
+            }
+        });
+        overlayStage.addActor(button1);
+
+        TextButton button2 = new TextButton("QUIT", skin);
+        button2.setPosition(250, 100);
+        button2.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Button clicked");
+                dispose();
+            }
+        });
+        overlayStage.addActor(button2);
+
+
     }
 
     @Override
@@ -130,21 +177,37 @@ public class LevelTwo implements Screen {
     public void render(float delta) {
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
-        // Step 1: Draw the background using game.batch
+        camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.batch.draw(background, 0, 0, 800, 480);  // Draw background at (0, 0)
         game.batch.end();  // End the background batch
 
-//        // Step 2: Set the camera and translate the map rendering position
-        camera.position.set(400, 240, 0);  // Move camera to (200, 100) over the original position
-        camera.update();  // Update the camera with the new position
-
-        // Step 3: Render the tile map at the new camera position
-        renderer.setView(camera);  // Set camera view for the renderer
-        renderer.render();  // Render the tile map (no need to manually call begin/end on the renderer's batch)
+        camera.position.set(400,240,0);
+        renderer.setView(camera);
+        renderer.render();
 
         b2dr.render(world, camera.combined);
+//        System.out.println(stage.getActors());
+        stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
+//        System.out.println("Number of actors in stage: " + stage.getActors().size); // Check if the stage has actors
+        stage.draw();
+//        stage.setDebugAll(true);
+        if (showOverlay) {
+            // Set translucency for the main screen background
+
+            // Draw a translucent overlay (dim the background)
+
+
+            // Render the overlay stage with buttons and images
+            overlayStage.act(Gdx.graphics.getDeltaTime());
+            overlayStage.draw();
+
+            // Disable the blending to restore normal rendering for future frames
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.W)){
+            game.batch.begin();
+        }
     }
 
 
@@ -152,8 +215,7 @@ public class LevelTwo implements Screen {
     @Override
     public void resize(int i, int i1) {
         viewport.update(i,i1);
-//        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); // Center the camera
-
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
     }
 
     @Override
@@ -178,5 +240,12 @@ public class LevelTwo implements Screen {
         renderer.dispose();
         world.dispose();
         b2dr.dispose();
+        menuBack.dispose();
+        menuPlay.dispose();
+        buttonImage.dispose();
+        fontGenerator.dispose();
+        font.dispose();
+        skin.dispose();
+        stage.dispose();
     }
 }

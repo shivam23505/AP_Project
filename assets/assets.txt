@@ -13,6 +13,8 @@ BronacoDemoRegular.ttf
 button-image.jpeg
 button.png
 button_down.png
+hs_err_pid20776.log
+hs_err_pid9636.log
 Level1at4.tmx
 LevelComplete.jpg
 levelcompletedgreen.jpeg
@@ -29,6 +31,7 @@ menu_play_btn.png
 offbutton.png
 onbutton.jpg
 pauseButton.png
+pauseButton_down.png
 play.png
 settings page.jpeg
 TilesetTest.tsx
