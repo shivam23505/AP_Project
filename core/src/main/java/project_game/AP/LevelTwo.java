@@ -235,16 +235,9 @@ public class LevelTwo implements Screen {
 //        stage.setDebugAll(true);
         if (showOverlay) {
             Gdx.input.setInputProcessor(overlayStage);
-            // Set translucency for the main screen background
 
-            // Draw a translucent overlay (dim the background)
-
-
-            // Render the overlay stage with buttons and images
             overlayStage.act(Gdx.graphics.getDeltaTime());
             overlayStage.draw();
-
-            // Disable the blending to restore normal rendering for future frames
         }
         else{
             Gdx.input.setInputProcessor(stage);

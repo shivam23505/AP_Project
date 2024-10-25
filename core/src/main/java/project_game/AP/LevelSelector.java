@@ -69,6 +69,24 @@ public class LevelSelector implements Screen {
         buttonFontParameter.color = Color.BLACK;
         btnFont = buttonFontGenerator.generateFont(buttonFontParameter);
 
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("backScreen.png")));
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("backScreen_down.png")));
+//
+        ImageButton backScreen = new ImageButton(buttonStyle);
+        backScreen.setSize(50,50);
+        backScreen.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
+        });
+        Table mytable = new Table();
+        mytable.setFillParent(true);
+        mytable.bottom().left().add(backScreen).size(50,50);
+        stage.addActor(mytable);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
@@ -151,12 +169,28 @@ public class LevelSelector implements Screen {
         TextButton.TextButtonStyle topStyle = new TextButton.TextButtonStyle();
         topStyle.font = btnFont;
         topStyle.up = new TextureRegionDrawable(new TextureRegion(buttonImage));
+//        topStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture("button_down.png")));
+
 
         TextButton btn = new TextButton(levelName, topStyle);
         btn.setSize(btn.getWidth(), btn.getHeight());
 
-        ImageButton button1 = new ImageButton(popupskin.getDrawable("button1Image"));
-        ImageButton button2 = new ImageButton(popupskin.getDrawable("button2Image"));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_play_btn.png")));
+
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("menu_play_btn_down.png")));
+
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_back_btn.png")));
+
+        ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
+        buttonStyle2 = new ImageButton.ImageButtonStyle();
+        buttonStyle2.imageUp = drawable;
+        buttonStyle2.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("menu_back_btn_down.png")));
+
+//
+        ImageButton button1 = new ImageButton(buttonStyle);
+        ImageButton button2 = new ImageButton(buttonStyle2);
 
         button1.addListener(new ClickListener() {
             @Override
