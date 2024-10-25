@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapObject;
@@ -60,14 +61,26 @@ public class LevelTwo implements Screen {
     //Overlay
     private Stage overlayStage;
     private boolean showOverlay;
-
+    private SpriteBatch batch;
+    Pigs pig1;
+    Pigs pig2;
+    private Texture pig1Texture,pig2Texture,pig3Texture;
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
-
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig3-removebg-preview.png");
+        batch=new SpriteBatch();
+        pig1=new Pigs(pig3Texture);
+        pig2=new Pigs(pig1Texture);
+        pig1.setSize(70,70);
+        pig1.setPosition(670,105);
+        pig2.setSize(40,40);
+        pig2.setPosition(680,205);
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
 
@@ -129,7 +142,6 @@ public class LevelTwo implements Screen {
             fdef.shape = shape;
             body.createFixture(fdef);
         }
-
   }
     public void showPauseMenu(){
         Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
@@ -206,12 +218,16 @@ public class LevelTwo implements Screen {
         game.batch.begin();
         game.batch.draw(background, 0, 0, 800, 480);  // Draw background at (0, 0)
         game.batch.end();  // End the background batch
-
         camera.position.set(400,240,0);
         renderer.setView(camera);
         renderer.render();
 
         b2dr.render(world, camera.combined);
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        pig1.render(batch);
+        pig2.render(batch);
+        batch.end();
 //        System.out.println(stage.getActors());
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
 //        System.out.println("Number of actors in stage: " + stage.getActors().size); // Check if the stage has actors
@@ -272,5 +288,9 @@ public class LevelTwo implements Screen {
         font.dispose();
         skin.dispose();
         stage.dispose();
+        pig1Texture.dispose();
+        pig2Texture.dispose();
+        pig3Texture.dispose();
+        batch.dispose();
     }
 }

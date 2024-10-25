@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapObject;
@@ -60,12 +61,29 @@ public class LevelOne implements Screen {
     private float elapsed=0;
     private boolean background_changedw=false;
     private boolean background_changedl=false;
+    private SpriteBatch batch;
+    Pigs pig1;
+    Pigs pig2;
+    Pigs pig3;
+    private Texture pig1Texture,pig2Texture,pig3Texture;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
         viewport = new FitViewport(800, 480, camera);
-
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig1-removebg-preview.png");
+        pig1=new Pigs(pig1Texture);
+        pig2=new Pigs(pig2Texture);
+        pig3=new Pigs(pig3Texture);
+        batch=new SpriteBatch();
+        pig1.setPosition(600,140);
+        pig1.setSize(40,40);
+        pig2.setPosition(655,255);
+        pig2.setSize(50,50);
+        pig3.setPosition(710,220);
+        pig3.setSize(40,40);
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
@@ -164,7 +182,12 @@ public class LevelOne implements Screen {
 
         // Render Box2D debug lines
         b2dr.render(world, camera.combined);
-
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        pig1.render(batch);
+        pig2.render(batch);
+        pig3.render(batch);
+        batch.end();
         // Draw UI elements on the stage
 //        stage.act();
 //        stage.draw();
@@ -231,5 +254,9 @@ public class LevelOne implements Screen {
         if(renderer!=null){renderer.dispose();}
         if(world!=null){world.dispose();}
         if(b2dr!=null){b2dr.dispose();}
+        pig1Texture.dispose();
+        pig2Texture.dispose();
+        pig3Texture.dispose();
+        batch.dispose();
     }
 }
