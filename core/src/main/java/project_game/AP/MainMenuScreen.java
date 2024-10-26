@@ -19,7 +19,7 @@ public class MainMenuScreen implements Screen {
     private Texture play;
     public MainMenuScreen(final Structure game) {
         this.game = game;
-        Background=new Texture("Angry Birds Background.jpg");
+        Background=new Texture("AngryBirdsBG2.jpeg");
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
