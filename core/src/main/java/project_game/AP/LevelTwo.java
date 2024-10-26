@@ -2,12 +2,14 @@ package project_game.AP;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapObject;
@@ -21,15 +23,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import javax.swing.*;
 import java.util.Objects;
 
 public class LevelTwo implements Screen {
@@ -37,13 +43,11 @@ public class LevelTwo implements Screen {
     private Texture background;
     private OrthographicCamera camera;
     private Viewport viewport;
-
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private BitmapFont font;
     private Stage stage;
     private Skin skin;
-    private Texture pauseButton;
 
     //Tiled map variables
     private TmxMapLoader mapLoader;
@@ -54,12 +58,31 @@ public class LevelTwo implements Screen {
     private World world;
     private Box2DDebugRenderer b2dr;
 
+    //Overlay
+    private Stage overlayStage;
+    private boolean showOverlay;
+    private SpriteBatch batch;
+    Pigs pig1;
+    Pigs pig2;
+    private Texture pig1Texture,pig2Texture,pig3Texture;
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig3-removebg-preview.png");
+        batch=new SpriteBatch();
+        pig1=new Pigs(pig3Texture);
+        pig2=new Pigs(pig1Texture);
+        pig1.setSize(70,70);
+        pig1.setPosition(670,105);
+        pig2.setSize(40,40);
+        pig2.setPosition(680,205);
+        overlayStage = new Stage(new ScreenViewport());
+        showOverlay = false;
 
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -68,30 +91,34 @@ public class LevelTwo implements Screen {
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
         fontParameter.borderWidth = 2;
-        fontParameter.color = Color.BLACK;
+        fontParameter.color = Color.WHITE;
         font = fontGenerator.generateFont(fontParameter);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        pauseButton = new Texture("pauseButton.png");
-
-        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-        style.up = new TextureRegionDrawable(new TextureRegion(pauseButton));
-
-        ImageButton btn = new ImageButton(style);
-        btn.setSize(btn.getWidth(),btn.getHeight());
+//        buttonImage = new Texture("button.png");
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json")); // Load a skin if you have one
+//        menuPlay = new Texture("menu_play_btn.png");
+////
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
+//
+        ImageButton pauseButton = new ImageButton(buttonStyle);
+//
+        pauseButton.setSize(50, 50);
 
         Table table = new Table();
         table.setFillParent(true);
-
-        table.top();
-        table.add(btn).right();
+        table.top().left();
+        table.add(pauseButton).size(100,100);
         stage.addActor(table);
-
-        btn.addListener(new ClickListener() {
+        pauseButton.setZIndex(stage.getActors().size-1);
+        pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                showPauseMenu();
-                dispose();
+                System.out.println("Button clicked");
+                showOverlay = true;
+                showPauseMenu();
             }
         });
         mapLoader = new TmxMapLoader();
@@ -115,6 +142,63 @@ public class LevelTwo implements Screen {
             fdef.shape = shape;
             body.createFixture(fdef);
         }
+  }
+    public void showPauseMenu(){
+        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
+        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
+        Image overlayImage = new Image(overlayImageDrawable);
+        overlayImage.setPosition(100, 0);
+        overlayStage.addActor(overlayImage);
+
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button.png")));
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button_down.png")));
+
+        ImageButton continueButton = new ImageButton(buttonStyle);
+        continueButton.setSize(90, 90);
+//        TextButton button1 = new TextButton("RESUME", skin);
+//        button1.setPosition(150, 100);
+        continueButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showOverlay = false;
+            }
+        });
+//        overlayStage.addActor(continueButton);
+
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button.png")));
+        ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
+        buttonStyle2.imageUp = drawable;
+        buttonStyle2.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button_down.png")));
+        ImageButton exitButton = new ImageButton(buttonStyle2);
+        exitButton.setSize(90, 90);
+
+//        TextButton button2 = new TextButton("QUIT", skin);
+//        button2.setPosition(250, 100);
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Button clicked");
+                game.setScreen(new LevelSelector(game));
+                dispose();
+            }
+        });
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = font;
+        Label label = new Label("PAUSED",labelStyle);
+//        overlayStage.addActor(exitButton);
+        Table table2 = new Table();
+        table2.setFillParent(true);
+//        table2.center();
+//        table2.row();
+        table2.add(label).padLeft(40).padTop(-90);
+        table2.row();
+        table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
+        table2.row();
+        table2.add(exitButton).center().padLeft(40);
+
+        overlayStage.addActor(table2);
     }
 
     @Override
@@ -129,21 +213,38 @@ public class LevelTwo implements Screen {
     public void render(float delta) {
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
-        // Step 1: Draw the background using game.batch
+        camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.batch.draw(background, 0, 0, 800, 480);  // Draw background at (0, 0)
         game.batch.end();  // End the background batch
-
-//        // Step 2: Set the camera and translate the map rendering position
-        camera.position.set(400, 240, 0);  // Move camera to (200, 100) over the original position
-        camera.update();  // Update the camera with the new position
-
-        // Step 3: Render the tile map at the new camera position
-        renderer.setView(camera);  // Set camera view for the renderer
-        renderer.render();  // Render the tile map (no need to manually call begin/end on the renderer's batch)
+        camera.position.set(400,240,0);
+        renderer.setView(camera);
+        renderer.render();
 
         b2dr.render(world, camera.combined);
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        pig1.render(batch);
+        pig2.render(batch);
+        batch.end();
+//        System.out.println(stage.getActors());
+        stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
+//        System.out.println("Number of actors in stage: " + stage.getActors().size); // Check if the stage has actors
+        stage.draw();
+//        stage.setDebugAll(true);
+        if (showOverlay) {
+            Gdx.input.setInputProcessor(overlayStage);
+
+            overlayStage.act(Gdx.graphics.getDeltaTime());
+            overlayStage.draw();
+        }
+        else{
+            Gdx.input.setInputProcessor(stage);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.W)){
+            game.batch.begin();
+        }
     }
 
 
@@ -151,8 +252,7 @@ public class LevelTwo implements Screen {
     @Override
     public void resize(int i, int i1) {
         viewport.update(i,i1);
-//        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); // Center the camera
-
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
     }
 
     @Override
@@ -177,5 +277,13 @@ public class LevelTwo implements Screen {
         renderer.dispose();
         world.dispose();
         b2dr.dispose();
+        fontGenerator.dispose();
+        font.dispose();
+        skin.dispose();
+        stage.dispose();
+        pig1Texture.dispose();
+        pig2Texture.dispose();
+        pig3Texture.dispose();
+        batch.dispose();
     }
 }
