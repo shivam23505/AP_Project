@@ -69,7 +69,9 @@ public class LevelOne implements Screen {
     Pigs pig1;
     Pigs pig2;
     Pigs pig3;
+    Birds redBird,yellowBird,blackBird;
     private Texture pig1Texture,pig2Texture,pig3Texture;
+    private Texture redTexture,yellowTexture,blackTexture;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -83,9 +85,17 @@ public class LevelOne implements Screen {
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig1-removebg-preview.png");
+        redTexture = new Texture("redBird.png");
+        yellowTexture = new Texture("yellowBird.png");
+        blackTexture = new Texture("blackBird.png");
         pig1=new Pigs(pig1Texture);
         pig2=new Pigs(pig2Texture);
         pig3=new Pigs(pig3Texture);
+        redBird=new Birds(redTexture);
+        yellowBird=new Birds(yellowTexture);
+        blackBird=new Birds(blackTexture);
+
+
         batch=new SpriteBatch();
         pig1.setPosition(600,140);
         pig1.setSize(40,40);
@@ -93,7 +103,12 @@ public class LevelOne implements Screen {
         pig2.setSize(50,50);
         pig3.setPosition(710,220);
         pig3.setSize(40,40);
-
+        redBird.setSize(50,50);
+        redBird.setPosition(90,105);
+        yellowBird.setSize(50,50);
+        yellowBird.setPosition(45,100);
+        blackBird.setSize(50,50);
+        blackBird.setPosition(5,105);
 
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -256,6 +271,7 @@ public class LevelOne implements Screen {
         pig1.render(batch);
         pig2.render(batch);
         pig3.render(batch);
+        redBird.render(batch);blackBird.render(batch);yellowBird.render(batch);
         batch.end();
         // Draw UI elements on the stage
 //        stage.act();

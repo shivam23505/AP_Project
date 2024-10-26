@@ -1,5 +1,6 @@
 .gitkeep
 Angry Birds background.jpg
+AngryBirdsBG2.jpeg
 AngryBirdsBG2.jpg
 AngryBirdsButton.jpg
 angrybirdsconcreteblocks.jpeg
@@ -11,6 +12,7 @@ Arial.ttf
 background.png
 backScreen.png
 backScreen_down.png
+blackBird.png
 BronacoDemoRegular.ttf
 button-image.jpeg
 button.png
@@ -54,6 +56,7 @@ pig2.jpeg
 pig3-removebg-preview.png
 pig3.jpeg
 play.png
+redBird.png
 settings page.jpeg
 settings_button.png
 settings_button_down.png
@@ -68,3 +71,4 @@ ui/uiskin.json
 ui/uiskin.png
 Wooden_block.png
 wooden_button.png
+yellowBird.png
