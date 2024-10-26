@@ -32,7 +32,7 @@ public class Settings implements Screen {
     public Settings(final Structure game){
         this.game=game;
         stage=new Stage(new ScreenViewport());
-        background=new Texture("Angry Birds background.jpg");
+        background=new Texture("background.png");
         button=new Texture("button.png");
         settingsBG=new Texture("settings page.jpeg");
         buttonOnTexture = new Texture("onbutton.jpg");
@@ -92,7 +92,8 @@ public class Settings implements Screen {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
             camera.unproject(touchPos);
             if(touchPos.x>350 && touchPos.x<550 && touchPos.y>100 && touchPos.y<175){
-                game.setScreen(game.gameScreen);
+                game.setScreen(new GameScreen(game));
+//                dispose();
             }
         }
 
@@ -122,9 +123,8 @@ public class Settings implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
         background.dispose();
-        font.dispose();
         fontGenerator.dispose();
+        stage.dispose();
     }
 }

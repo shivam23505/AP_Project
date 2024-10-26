@@ -20,10 +20,10 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -32,75 +32,77 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import javax.swing.*;
 import java.util.Objects;
 
-public class LevelTwo implements Screen {
+public class LevelOne implements Screen {
     final Structure game;
     private Texture background;
     private OrthographicCamera camera;
     private Viewport viewport;
+    private BitmapFont font;
+
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
-    private BitmapFont font;
     private Stage stage;
-    private Skin skin;
 
-    //Tiled map variables
+    // Tiled map variables
     private TmxMapLoader mapLoader;
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer renderer;
 
-    //Box2d Variables
+    // Box2d Variables
     private World world;
     private Box2DDebugRenderer b2dr;
 
     //Overlay
     private Stage overlayStage;
     private boolean showOverlay;
+
+    // Constant for tile size (adjust according to your tile size)
+    private static final float TILE_SIZE = 16.0f;
     private float elapsed=0;
     private boolean background_changedw=false;
     private boolean background_changedl=false;
     private SpriteBatch batch;
     Pigs pig1;
     Pigs pig2;
+    Pigs pig3;
     private Texture pig1Texture,pig2Texture,pig3Texture;
-    public LevelTwo(Structure game) {
+    public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
-        pig1Texture=new Texture("pig1-removebg-preview.png");
-        pig2Texture=new Texture("pig2-removebg-preview.png");
-        pig3Texture=new Texture("pig3-removebg-preview.png");
-        batch=new SpriteBatch();
-        pig1=new Pigs(pig3Texture);
-        pig2=new Pigs(pig1Texture);
-        pig1.setSize(70,70);
-        pig1.setPosition(670,105);
-        pig2.setSize(40,40);
-        pig2.setPosition(680,205);
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
 
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig1-removebg-preview.png");
+        pig1=new Pigs(pig1Texture);
+        pig2=new Pigs(pig2Texture);
+        pig3=new Pigs(pig3Texture);
+        batch=new SpriteBatch();
+        pig1.setPosition(600,140);
+        pig1.setSize(40,40);
+        pig2.setPosition(655,255);
+        pig2.setSize(50,50);
+        pig3.setPosition(710,220);
+        pig3.setSize(40,40);
+
 
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
         fontParameter.borderWidth = 2;
-        fontParameter.color = Color.WHITE;
+        fontParameter.color = Color.BLACK;
         font = fontGenerator.generateFont(fontParameter);
 
-//        buttonImage = new Texture("button.png");
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json")); // Load a skin if you have one
-//        menuPlay = new Texture("menu_play_btn.png");
-////
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
         buttonStyle.imageUp = drawable;
@@ -124,26 +126,41 @@ public class LevelTwo implements Screen {
                 showPauseMenu();
             }
         });
+
+
+        // Load the tilemap and set the renderer with the correct scale
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("level_two_map.tmx");
+        tiledMap = mapLoader.load("Level1at4.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        world = new World(new Vector2(0,0),true);
+        world = new World(new Vector2(0, 0), true);
         b2dr = new Box2DDebugRenderer();
+        System.out.println("Number of layers: " + tiledMap.getLayers().getCount());
+        // Iterate over objects in the second layer (adjust layer if necessary)
+        for (int layerIndex = 1; layerIndex <= 2; layerIndex++) {
+            for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(RectangleMapObject.class)) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-        BodyDef bdef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fdef = new FixtureDef();
-        Body body;
+                // Define the body as a static body
+                BodyDef bdef = new BodyDef();
+                bdef.type = BodyDef.BodyType.StaticBody;
+                bdef.position.set((rect.getX() + rect.getWidth() / 2) , (rect.getY() + rect.getHeight() / 2) );
 
-        for (MapObject object : tiledMap.getLayers().get(1).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.y + rect.getHeight() / 2);
-            body = world.createBody(bdef);
-            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
-            fdef.shape = shape;
-            body.createFixture(fdef);
+                // Create the body in the Box2D world
+                Body body = world.createBody(bdef);
+
+                // Define the shape of the body as a rectangle
+                PolygonShape shape = new PolygonShape();
+                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+
+                // Fixture definition
+                FixtureDef fdef = new FixtureDef();
+                fdef.shape = shape;
+                body.createFixture(fdef);
+
+                // Dispose the shape after using it
+                shape.dispose();
+            }
         }
     }
     public void showPauseMenu(){
@@ -206,36 +223,45 @@ public class LevelTwo implements Screen {
 
     @Override
     public void show() {
-
     }
-    public void update(float delta){
+
+    public void update(float delta) {
         camera.update();
         renderer.setView(camera);
     }
+
     @Override
     public void render(float delta) {
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
-        camera.update();
+
+        // Step 1: Draw the background using game.batch
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        game.batch.draw(background, 0, 0, 800, 480);  // Draw background at (0, 0)
-        game.batch.end();  // End the background batch
-        camera.position.set(400,240,0);
+        game.batch.draw(background, 0, 0, 800, 480);
+        game.batch.end();
+
+        // Step 2: Set the camera and update its position
+        camera.position.set(400, 240, 0);
+        camera.update();
+
+        // Step 3: Render the tile map
         renderer.setView(camera);
         renderer.render();
 
+        // Render Box2D debug lines
         b2dr.render(world, camera.combined);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         pig1.render(batch);
         pig2.render(batch);
+        pig3.render(batch);
         batch.end();
-//        System.out.println(stage.getActors());
+        // Draw UI elements on the stage
+//        stage.act();
+//        stage.draw();
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
-//        System.out.println("Number of actors in stage: " + stage.getActors().size); // Check if the stage has actors
         stage.draw();
-//        stage.setDebugAll(true);
         if (showOverlay) {
             Gdx.input.setInputProcessor(overlayStage);
 
@@ -282,45 +308,38 @@ public class LevelTwo implements Screen {
                 dispose();
             }
         }
+
     }
 
 
-
     @Override
-    public void resize(int i, int i1) {
-        viewport.update(i,i1);
-        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+    public void resize(int width, int height) {
+        viewport.update(width,height);
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
-        background.dispose();
-        tiledMap.dispose();
-        renderer.dispose();
-        world.dispose();
-        b2dr.dispose();
-        fontGenerator.dispose();
-        font.dispose();
-        skin.dispose();
-        stage.dispose();
+        if(background!=null){background.dispose();}
+        if(tiledMap!=null){tiledMap.dispose();}
+        if(renderer!=null){renderer.dispose();}
+        if(world!=null){world.dispose();}
+        if(b2dr!=null){b2dr.dispose();}
         pig1Texture.dispose();
         pig2Texture.dispose();
         pig3Texture.dispose();
+        overlayStage.dispose();
         batch.dispose();
     }
 }

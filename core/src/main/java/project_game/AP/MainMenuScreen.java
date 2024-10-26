@@ -19,7 +19,7 @@ public class MainMenuScreen implements Screen {
     private Texture play;
     public MainMenuScreen(final Structure game) {
         this.game = game;
-        Background=new Texture("Angry Birds Background.jpg");
+        Background=new Texture("AngryBirdsBG2.jpg");
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
@@ -46,7 +46,7 @@ public class MainMenuScreen implements Screen {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
             camera.unproject(touchPos);
             if(touchPos.x>300 && touchPos.x<500 && touchPos.y>120 && touchPos.y<195){
-                game.setScreen(game.gameScreen);
+                game.setScreen(new GameScreen(game));
                 dispose();
             }
         }
