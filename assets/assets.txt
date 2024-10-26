@@ -60,6 +60,7 @@ redBird.png
 settings page.jpeg
 settings_button.png
 settings_button_down.png
+slingshot.png
 TilesetTest.tsx
 ts1.tsx
 ui/font-list.fnt

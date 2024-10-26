@@ -69,8 +69,10 @@ public class LevelTwo implements Screen {
     Pigs pig2;
     Birds redBird;
     Birds blackBird;
+    Slingshot slingshot;
     private Texture pig1Texture,pig2Texture,pig3Texture;
     private Texture redTexture,blackTexture;
+    private Texture sling;
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -82,11 +84,13 @@ public class LevelTwo implements Screen {
         pig3Texture=new Texture("pig3-removebg-preview.png");
         redTexture = new Texture("redBird.png");
         blackTexture = new Texture("blackBird.png");
+        sling = new Texture("slingshot.png");
         batch=new SpriteBatch();
         pig1=new Pigs(pig3Texture);
         pig2=new Pigs(pig1Texture);
         redBird = new Birds(redTexture);
         blackBird = new Birds(blackTexture);
+        slingshot = new Slingshot(sling);
         redBird.setSize(50,50);
         redBird.setPosition(10,105);
         blackBird.setSize(50,50);
@@ -95,6 +99,8 @@ public class LevelTwo implements Screen {
         pig1.setPosition(670,105);
         pig2.setSize(40,40);
         pig2.setPosition(680,205);
+        slingshot.setSize(100,100);
+        slingshot.setPosition(120,105);
 
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
@@ -244,6 +250,7 @@ public class LevelTwo implements Screen {
         pig2.render(batch);
         redBird.render(batch);
         blackBird.render(batch);
+        slingshot.render(batch);
         batch.end();
 //        System.out.println(stage.getActors());
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
@@ -337,6 +344,7 @@ public class LevelTwo implements Screen {
         pig3Texture.dispose();
         redTexture.dispose();
         blackTexture.dispose();
+        sling.dispose();
         batch.dispose();
     }
 }

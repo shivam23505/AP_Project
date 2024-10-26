@@ -70,8 +70,10 @@ public class LevelOne implements Screen {
     Pigs pig2;
     Pigs pig3;
     Birds redBird,yellowBird,blackBird;
+    Slingshot slingshot;
     private Texture pig1Texture,pig2Texture,pig3Texture;
     private Texture redTexture,yellowTexture,blackTexture;
+    private Texture sling;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -88,13 +90,14 @@ public class LevelOne implements Screen {
         redTexture = new Texture("redBird.png");
         yellowTexture = new Texture("yellowBird.png");
         blackTexture = new Texture("blackBird.png");
+        sling =new Texture("slingshot.png");
         pig1=new Pigs(pig1Texture);
         pig2=new Pigs(pig2Texture);
         pig3=new Pigs(pig3Texture);
         redBird=new Birds(redTexture);
         yellowBird=new Birds(yellowTexture);
         blackBird=new Birds(blackTexture);
-
+        slingshot = new Slingshot(sling);
 
         batch=new SpriteBatch();
         pig1.setPosition(600,140);
@@ -109,7 +112,8 @@ public class LevelOne implements Screen {
         yellowBird.setPosition(45,100);
         blackBird.setSize(50,50);
         blackBird.setPosition(5,105);
-
+        slingshot.setSize(100,100);
+        slingshot.setPosition(130,105);
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
@@ -272,6 +276,7 @@ public class LevelOne implements Screen {
         pig2.render(batch);
         pig3.render(batch);
         redBird.render(batch);blackBird.render(batch);yellowBird.render(batch);
+        slingshot.render(batch);
         batch.end();
         // Draw UI elements on the stage
 //        stage.act();
@@ -355,7 +360,11 @@ public class LevelOne implements Screen {
         pig1Texture.dispose();
         pig2Texture.dispose();
         pig3Texture.dispose();
+        yellowTexture.dispose();
+        redTexture.dispose();
+        blackTexture.dispose();
         overlayStage.dispose();
+
         batch.dispose();
     }
 }
