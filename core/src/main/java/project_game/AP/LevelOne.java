@@ -4,10 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -74,6 +71,7 @@ public class LevelOne implements Screen {
     private Texture pig1Texture,pig2Texture,pig3Texture;
     private Texture redTexture,yellowTexture,blackTexture;
     private Texture sling;
+    private Drawable overlayDrawable;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -120,6 +118,9 @@ public class LevelOne implements Screen {
         fontParameter.borderWidth = 2;
         fontParameter.color = Color.BLACK;
         font = fontGenerator.generateFont(fontParameter);
+
+        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
+        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
 
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
@@ -183,11 +184,16 @@ public class LevelOne implements Screen {
         }
     }
     public void showPauseMenu(){
-        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
-        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
-        Image overlayImage = new Image(overlayImageDrawable);
-        overlayImage.setPosition(100, 0);
-        overlayStage.addActor(overlayImage);
+//        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
+//        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
+//        Image overlayImage = new Image(overlayImageDrawable);
+//        overlayImage.setPosition(100, 0);
+//        overlayStage.addActor(overlayImage);
+
+        Table backgroundTable = new Table();
+        backgroundTable.setFillParent(true);
+        backgroundTable.setBackground(overlayDrawable);  // Set the transparent background
+        overlayStage.addActor(backgroundTable);
 
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button.png")));
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
@@ -205,6 +211,19 @@ public class LevelOne implements Screen {
             }
         });
 //        overlayStage.addActor(continueButton);
+
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_save_btn.png")));
+        ImageButton.ImageButtonStyle buttonStyle3 = new ImageButton.ImageButtonStyle();
+        buttonStyle3.imageUp = drawable;
+        ImageButton saveButton = new ImageButton(buttonStyle3);
+        saveButton.setSize(90, 90);
+
+        saveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Clicked! GAME STATE SAVED!!");
+            }
+        });
 
         drawable = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button.png")));
         ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
@@ -231,13 +250,23 @@ public class LevelOne implements Screen {
         table2.setFillParent(true);
 //        table2.center();
 //        table2.row();
-        table2.add(label).padLeft(40).padTop(-90);
+        table2.add(label).padLeft(40).padTop(-10);
         table2.row();
         table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
+        table2.row();
+        table2.add(saveButton).center().padLeft(40).padBottom(25);
         table2.row();
         table2.add(exitButton).center().padLeft(40);
 
         overlayStage.addActor(table2);
+    }
+    private Texture createTransparentPixel(float r, float g, float b, float alpha) {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(r, g, b, alpha);  // Set RGBA for transparency
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
     }
 
     @Override
@@ -291,6 +320,7 @@ public class LevelOne implements Screen {
         }
         else{
             Gdx.input.setInputProcessor(stage);
+            overlayStage.clear();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             if (!background_changedw) {
