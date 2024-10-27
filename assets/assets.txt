@@ -45,6 +45,7 @@ menu_back_btn_down.png
 menu_button.jpg
 menu_play_btn.png
 menu_play_btn_down.png
+menu_save_btn.png
 offbutton.png
 onbutton.jpg
 pauseButton.png
