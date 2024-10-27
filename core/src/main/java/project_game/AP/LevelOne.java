@@ -116,7 +116,7 @@ public class LevelOne implements Screen {
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
         fontParameter.borderWidth = 2;
-        fontParameter.color = Color.BLACK;
+        fontParameter.color = Color.WHITE;
         font = fontGenerator.generateFont(fontParameter);
 
         Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
