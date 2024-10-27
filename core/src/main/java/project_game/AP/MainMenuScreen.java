@@ -38,14 +38,14 @@ public class MainMenuScreen implements Screen {
         //We use game's spriteBatch
         game.batch.begin();
         game.batch.draw(Background,0,0,800,480);
-        game.batch.draw(play,300,120,200,75);
+        game.batch.draw(play,300,50,200,75);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
             Vector3 touchPos=new Vector3();
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
             camera.unproject(touchPos);
-            if(touchPos.x>300 && touchPos.x<500 && touchPos.y>120 && touchPos.y<195){
+            if(touchPos.x>300 && touchPos.x<500 && touchPos.y>50 && touchPos.y<125){
                 game.setScreen(new GameScreen(game));
                 dispose();
             }
