@@ -38,13 +38,17 @@ Resource and references used in this project:
 ## Ensure Java version 17 present
 https://www.java.com/download/ie_manual.jsp
 
-## INSTALL IDE
-(IntelliJ) -- https://www.jetbrains.com/idea/
+## Install IDE
+(IntelliJ) -- https://www.jetbrains.com/idea/ \
 (Eclipse) -- https://eclipseide.org/
 
 ### How to run the game
-git clone https://github.com/shivam23505/AP_Project.git
-cd AP_Project
-In the terminal type the commands -- 
-./gradlew build
+git clone https://github.com/shivam23505/AP_Project.git \
+cd AP_Project\
+<br>In the terminal type the commands -- \
+./gradlew build\
 ./gradlew run
+
+## Contributors
+Shivam Jhunjhunuwala 2023505\
+Varun Golcha 2023584
