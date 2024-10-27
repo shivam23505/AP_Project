@@ -297,7 +297,7 @@ public class LevelTwo implements Screen {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             if (!background_changedw) {
-                LevelSelector.level1complete = true;
+                LevelSelector.level2complete = true;
                 background = new Texture("LevelComplete.jpg");  // Change background
                 elapsed = 0;  // Reset the timer
                 background_changedw = true;  // Set flag to avoid resetting on every frame
