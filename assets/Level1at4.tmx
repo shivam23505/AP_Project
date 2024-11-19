@@ -8,14 +8,14 @@
   </data>
  </layer>
  <objectgroup id="2" name="WoodenBlock">
-  <object id="2" x="638" y="957" width="130" height="19"/>
-  <object id="3" x="643" y="977" width="14" height="80"/>
+  <object id="2" x="638" y="957" width="137.667" height="19"/>
+  <object id="3" x="641.667" y="977" width="15.3333" height="81"/>
   <object id="4" x="751" y="976" width="17" height="82"/>
-  <object id="6" x="577" y="1054" width="64" height="17"/>
+  <object id="6" x="499.667" y="1054" width="141.333" height="17"/>
   <object id="11" x="641" y="1058" width="128" height="79"/>
  </objectgroup>
  <objectgroup id="3" name="ConcreteBlock">
-  <object id="9" x="576" y="1071" width="15" height="113"/>
+  <object id="9" x="561" y="1071" width="30" height="113"/>
   <object id="10" x="657" y="1026" width="48" height="32"/>
   <object id="13" x="591" y="1136" width="179" height="47"/>
  </objectgroup>

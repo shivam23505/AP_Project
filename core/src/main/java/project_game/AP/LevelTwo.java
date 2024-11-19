@@ -33,6 +33,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class LevelTwo implements Screen {
@@ -71,9 +72,14 @@ public class LevelTwo implements Screen {
     private Texture redTexture,blackTexture;
     private Texture sling;
     private Drawable overlayDrawable;
+    private Texture wood_texture,concrete_texture;
+    ArrayList<Body> wood=new ArrayList<Body>();
+    ArrayList<Float> wood_width=new ArrayList<Float>();
+    ArrayList<Float> wood_height=new ArrayList<Float>();
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
+        wood_texture=new Texture("wooden_textureAB.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
@@ -147,8 +153,9 @@ public class LevelTwo implements Screen {
         tiledMap = mapLoader.load("level_two_map.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        world = new World(new Vector2(0,0),true);
+        world = new World(new Vector2(0,-10f),false);
         b2dr = new Box2DDebugRenderer();
+        WorldUtils.createGround(world);
 
         BodyDef bdef = new BodyDef();
         PolygonShape shape = new PolygonShape();
@@ -157,12 +164,18 @@ public class LevelTwo implements Screen {
 
         for (MapObject object : tiledMap.getLayers().get(1).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            bdef.type = BodyDef.BodyType.StaticBody;
+            bdef.type = BodyDef.BodyType.DynamicBody;
             bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.y + rect.getHeight() / 2);
             body = world.createBody(bdef);
             shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
             fdef.shape = shape;
+            fdef.density=0.5f;
+            fdef.friction=0.4f;
+            fdef.restitution=0f;
             body.createFixture(fdef);
+            wood.add(body);
+            wood_width.add(rect.getWidth());
+            wood_height.add(rect.getHeight());
         }
     }
     public void showPauseMenu(){
@@ -252,15 +265,19 @@ public class LevelTwo implements Screen {
     }
     @Override
     public void show() {
-
+        b2dr = new Box2DDebugRenderer();
     }
     public void update(float delta){
         camera.update();
+        world.step(1/60f,6,2);
         renderer.setView(camera);
+        batch.setProjectionMatrix(camera.combined);
+
     }
     @Override
     public void render(float delta) {
         // Clear the screen with a black color
+        update(delta);
         ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -279,6 +296,17 @@ public class LevelTwo implements Screen {
         redBird.render(batch);
         blackBird.render(batch);
         slingshot.render(batch);
+        int count=0;
+        for(Body b:wood){
+            batch.draw(
+                wood_texture,
+                b.getPosition().x-(wood_width.get(count))/2,
+                b.getPosition().y-wood_height.get(count)/2,
+                wood_width.get(count),
+                wood_height.get(count)
+            );
+            count++;
+        }
         batch.end();
 //        System.out.println(stage.getActors());
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage

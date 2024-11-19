@@ -164,7 +164,7 @@ public class LevelOne implements Screen {
         tiledMap = mapLoader.load("Level1at4.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        world = new World(new Vector2(0, -10f), false);
+        world = new World(new Vector2(0, -9.81f), false);
         b2dr = new Box2DDebugRenderer();
         System.out.println("GC");
         WorldUtils.createGround(world);
@@ -187,21 +187,31 @@ public class LevelOne implements Screen {
                 shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
                 // Fixture definition
-                FixtureDef fdef = new FixtureDef();
-                fdef.shape = shape;
-                fdef.density=0.5f;
-                fdef.friction=0.4f;
-                fdef.restitution=0.6f;
-                body.createFixture(fdef);
-
-                // Dispose the shape after using it
-                shape.dispose();
                 if(layerIndex==1){
+                    FixtureDef fdef = new FixtureDef();
+                    fdef.shape = shape;
+                    fdef.density=0.5f;
+                    fdef.friction=0.4f;
+                    fdef.restitution=0f;
+                    body.createFixture(fdef);
+
+                    // Dispose the shape after using it
+                    shape.dispose();
                     wood.add(body);
                     wood_width.add(rect.getWidth());
                     wood_height.add(rect.getHeight());
                 }
                 if(layerIndex==2){
+                    FixtureDef fdef = new FixtureDef();
+                    fdef.shape = shape;
+                    fdef.density=1f;
+                    fdef.friction=0.4f;
+                    fdef.restitution=0f;
+                    body.createFixture(fdef);
+
+                    // Dispose the shape after using it
+                    shape.dispose();
+
                     concrete.add(body);
                     concrete_height.add(rect.getHeight());
                     concrete_width.add(rect.getWidth());
@@ -302,7 +312,7 @@ public class LevelOne implements Screen {
 
     public void update(float delta) {
         camera.update();
-        world.step(1f,6,2);
+        world.step(1/60f,6,2);
         renderer.setView(camera);
         batch.setProjectionMatrix(camera.combined);
     }
@@ -340,8 +350,8 @@ public class LevelOne implements Screen {
         for(Body b:wood){
             batch.draw(
                 wood_texture,
-                b.getPosition().x-(wood_width.get(count))/2,
-                b.getPosition().y-wood_height.get(count)/2,
+                (b.getPosition().x)-(wood_width.get(count))/2,
+                b.getPosition().y-(wood_height.get(count))/2,
                 wood_width.get(count),
                 wood_height.get(count)
             );
