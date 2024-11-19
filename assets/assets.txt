@@ -66,5 +66,5 @@ ui/uiskin.json
 ui/uiskin.png
 Wooden_block.png
 wooden_button.png
-wooden_textureAB.jpeg
+wooden_textureAB.png
 yellowBird.png

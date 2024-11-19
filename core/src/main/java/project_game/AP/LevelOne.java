@@ -97,7 +97,7 @@ public class LevelOne implements Screen {
         redTexture = new Texture("redBird.png");
         yellowTexture = new Texture("yellowBird.png");
         blackTexture = new Texture("blackBird.png");
-        wood_texture=new Texture("wooden_textureAB.jpeg");
+        wood_texture=new Texture("wooden_textureAB.png");
         concrete_texture=new Texture("concrete_blockAB.jpeg");
         sling =new Texture("slingshot.png");
         pig1=new Pigs(pig1Texture);
