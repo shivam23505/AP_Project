@@ -31,9 +31,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class LevelOne implements Screen {
+    private Box2DDebugRenderer debugRenderer;
     final Structure game;
     private Texture background;
     private OrthographicCamera camera;
@@ -72,6 +74,13 @@ public class LevelOne implements Screen {
     private Texture redTexture,yellowTexture,blackTexture;
     private Texture sling;
     private Drawable overlayDrawable;
+    private Texture wood_texture,concrete_texture;
+    ArrayList<Body> wood=new ArrayList<Body>();
+    ArrayList<Float> wood_width=new ArrayList<Float>();
+    ArrayList<Float> wood_height=new ArrayList<Float>();
+    ArrayList<Body> concrete=new ArrayList<Body>();
+    ArrayList<Float> concrete_width=new ArrayList<Float>();
+    ArrayList<Float> concrete_height=new ArrayList<Float>();
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -88,6 +97,8 @@ public class LevelOne implements Screen {
         redTexture = new Texture("redBird.png");
         yellowTexture = new Texture("yellowBird.png");
         blackTexture = new Texture("blackBird.png");
+        wood_texture=new Texture("wooden_textureAB.jpeg");
+        concrete_texture=new Texture("concrete_blockAB.jpeg");
         sling =new Texture("slingshot.png");
         pig1=new Pigs(pig1Texture);
         pig2=new Pigs(pig2Texture);
@@ -153,17 +164,19 @@ public class LevelOne implements Screen {
         tiledMap = mapLoader.load("Level1at4.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        world = new World(new Vector2(0, 0), true);
+        world = new World(new Vector2(0, -10f), false);
         b2dr = new Box2DDebugRenderer();
+        System.out.println("GC");
+        WorldUtils.createGround(world);
+
         System.out.println("Number of layers: " + tiledMap.getLayers().getCount());
         // Iterate over objects in the second layer (adjust layer if necessary)
         for (int layerIndex = 1; layerIndex <= 2; layerIndex++) {
             for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(RectangleMapObject.class)) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
                 // Define the body as a static body
                 BodyDef bdef = new BodyDef();
-                bdef.type = BodyDef.BodyType.StaticBody;
+                bdef.type = BodyDef.BodyType.DynamicBody;
                 bdef.position.set((rect.getX() + rect.getWidth() / 2) , (rect.getY() + rect.getHeight() / 2) );
 
                 // Create the body in the Box2D world
@@ -176,10 +189,23 @@ public class LevelOne implements Screen {
                 // Fixture definition
                 FixtureDef fdef = new FixtureDef();
                 fdef.shape = shape;
+                fdef.density=0.5f;
+                fdef.friction=0.4f;
+                fdef.restitution=0.6f;
                 body.createFixture(fdef);
 
                 // Dispose the shape after using it
                 shape.dispose();
+                if(layerIndex==1){
+                    wood.add(body);
+                    wood_width.add(rect.getWidth());
+                    wood_height.add(rect.getHeight());
+                }
+                if(layerIndex==2){
+                    concrete.add(body);
+                    concrete_height.add(rect.getHeight());
+                    concrete_width.add(rect.getWidth());
+                }
             }
         }
     }
@@ -271,15 +297,19 @@ public class LevelOne implements Screen {
 
     @Override
     public void show() {
+        debugRenderer = new Box2DDebugRenderer();
     }
 
     public void update(float delta) {
         camera.update();
+        world.step(1f,6,2);
         renderer.setView(camera);
+        batch.setProjectionMatrix(camera.combined);
     }
 
     @Override
     public void render(float delta) {
+        update(delta);
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
 
@@ -306,7 +336,31 @@ public class LevelOne implements Screen {
         pig3.render(batch);
         redBird.render(batch);blackBird.render(batch);yellowBird.render(batch);
         slingshot.render(batch);
+        int count=0;
+        for(Body b:wood){
+            batch.draw(
+                wood_texture,
+                b.getPosition().x-(wood_width.get(count))/2,
+                b.getPosition().y-wood_height.get(count)/2,
+                wood_width.get(count),
+                wood_height.get(count)
+            );
+            count++;
+        }
+        count=0;
+        for(Body b:concrete){
+            batch.draw(
+                concrete_texture,
+                b.getPosition().x-concrete_width.get(count)/2,
+                b.getPosition().y-concrete_height.get(count)/2,
+                concrete_width.get(count),
+                concrete_height.get(count)
+            );
+            count++;
+        }
+
         batch.end();
+        debugRenderer.render(world, camera.combined);
         // Draw UI elements on the stage
 //        stage.act();
 //        stage.draw();
