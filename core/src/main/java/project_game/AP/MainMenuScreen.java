@@ -19,7 +19,7 @@ public class MainMenuScreen implements Screen {
     private Texture play;
     public MainMenuScreen(final Structure game) {
         this.game = game;
-        Background=new Texture("AngryBirdsBG2.jpeg");
+        Background=new Texture("AngryBirdsBG2.jpg");
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
@@ -38,15 +38,15 @@ public class MainMenuScreen implements Screen {
         //We use game's spriteBatch
         game.batch.begin();
         game.batch.draw(Background,0,0,800,480);
-        game.batch.draw(play,300,120,200,75);
+        game.batch.draw(play,300,50,200,75);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
             Vector3 touchPos=new Vector3();
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
             camera.unproject(touchPos);
-            if(touchPos.x>300 && touchPos.x<500 && touchPos.y>120 && touchPos.y<195){
-                game.setScreen(game.gameScreen);
+            if(touchPos.x>300 && touchPos.x<500 && touchPos.y>50 && touchPos.y<125){
+                game.setScreen(new GameScreen(game));
                 dispose();
             }
         }

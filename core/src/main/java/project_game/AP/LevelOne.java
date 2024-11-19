@@ -4,10 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -69,7 +66,12 @@ public class LevelOne implements Screen {
     Pigs pig1;
     Pigs pig2;
     Pigs pig3;
+    Birds redBird,yellowBird,blackBird;
+    Slingshot slingshot;
     private Texture pig1Texture,pig2Texture,pig3Texture;
+    private Texture redTexture,yellowTexture,blackTexture;
+    private Texture sling;
+    private Drawable overlayDrawable;
     public LevelOne(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -83,9 +85,18 @@ public class LevelOne implements Screen {
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig1-removebg-preview.png");
+        redTexture = new Texture("redBird.png");
+        yellowTexture = new Texture("yellowBird.png");
+        blackTexture = new Texture("blackBird.png");
+        sling =new Texture("slingshot.png");
         pig1=new Pigs(pig1Texture);
         pig2=new Pigs(pig2Texture);
         pig3=new Pigs(pig3Texture);
+        redBird=new Birds(redTexture);
+        yellowBird=new Birds(yellowTexture);
+        blackBird=new Birds(blackTexture);
+        slingshot = new Slingshot(sling);
+
         batch=new SpriteBatch();
         pig1.setPosition(600,140);
         pig1.setSize(40,40);
@@ -93,14 +104,23 @@ public class LevelOne implements Screen {
         pig2.setSize(50,50);
         pig3.setPosition(710,220);
         pig3.setSize(40,40);
-
-
+        redBird.setSize(50,50);
+        redBird.setPosition(90,105);
+        yellowBird.setSize(50,50);
+        yellowBird.setPosition(45,100);
+        blackBird.setSize(50,50);
+        blackBird.setPosition(5,105);
+        slingshot.setSize(100,100);
+        slingshot.setPosition(130,105);
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
         fontParameter.borderWidth = 2;
-        fontParameter.color = Color.BLACK;
+        fontParameter.color = Color.WHITE;
         font = fontGenerator.generateFont(fontParameter);
+
+        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
+        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
 
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
@@ -164,11 +184,16 @@ public class LevelOne implements Screen {
         }
     }
     public void showPauseMenu(){
-        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
-        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
-        Image overlayImage = new Image(overlayImageDrawable);
-        overlayImage.setPosition(100, 0);
-        overlayStage.addActor(overlayImage);
+//        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
+//        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
+//        Image overlayImage = new Image(overlayImageDrawable);
+//        overlayImage.setPosition(100, 0);
+//        overlayStage.addActor(overlayImage);
+
+        Table backgroundTable = new Table();
+        backgroundTable.setFillParent(true);
+        backgroundTable.setBackground(overlayDrawable);  // Set the transparent background
+        overlayStage.addActor(backgroundTable);
 
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button.png")));
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
@@ -186,6 +211,19 @@ public class LevelOne implements Screen {
             }
         });
 //        overlayStage.addActor(continueButton);
+
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_save_btn.png")));
+        ImageButton.ImageButtonStyle buttonStyle3 = new ImageButton.ImageButtonStyle();
+        buttonStyle3.imageUp = drawable;
+        ImageButton saveButton = new ImageButton(buttonStyle3);
+        saveButton.setSize(90, 90);
+
+        saveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Clicked! GAME STATE SAVED!!");
+            }
+        });
 
         drawable = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button.png")));
         ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
@@ -212,13 +250,23 @@ public class LevelOne implements Screen {
         table2.setFillParent(true);
 //        table2.center();
 //        table2.row();
-        table2.add(label).padLeft(40).padTop(-90);
+        table2.add(label).padLeft(40).padTop(-10);
         table2.row();
         table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
+        table2.row();
+        table2.add(saveButton).center().padLeft(40).padBottom(25);
         table2.row();
         table2.add(exitButton).center().padLeft(40);
 
         overlayStage.addActor(table2);
+    }
+    private Texture createTransparentPixel(float r, float g, float b, float alpha) {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(r, g, b, alpha);  // Set RGBA for transparency
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
     }
 
     @Override
@@ -256,6 +304,8 @@ public class LevelOne implements Screen {
         pig1.render(batch);
         pig2.render(batch);
         pig3.render(batch);
+        redBird.render(batch);blackBird.render(batch);yellowBird.render(batch);
+        slingshot.render(batch);
         batch.end();
         // Draw UI elements on the stage
 //        stage.act();
@@ -270,6 +320,7 @@ public class LevelOne implements Screen {
         }
         else{
             Gdx.input.setInputProcessor(stage);
+            overlayStage.clear();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             if (!background_changedw) {
@@ -286,7 +337,8 @@ public class LevelOne implements Screen {
             game.batch.draw(background, 0, 0, 800, 480);  // Ensure the new background is drawn
             game.batch.end();
             if (elapsed >= 2) {
-                game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+                game.setScreen(new LevelSelector(game));// Transition to LevelSelector screen
+                dispose();
             }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
@@ -304,6 +356,7 @@ public class LevelOne implements Screen {
             game.batch.end();
             if (elapsed >= 2) {
                 game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+                dispose();
             }
         }
 
@@ -337,7 +390,11 @@ public class LevelOne implements Screen {
         pig1Texture.dispose();
         pig2Texture.dispose();
         pig3Texture.dispose();
+        yellowTexture.dispose();
+        redTexture.dispose();
+        blackTexture.dispose();
         overlayStage.dispose();
+
         batch.dispose();
     }
 }

@@ -4,10 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -61,10 +58,19 @@ public class LevelTwo implements Screen {
     //Overlay
     private Stage overlayStage;
     private boolean showOverlay;
+    private float elapsed=0;
+    private boolean background_changedw=false;
+    private boolean background_changedl=false;
     private SpriteBatch batch;
     Pigs pig1;
     Pigs pig2;
+    Birds redBird;
+    Birds blackBird;
+    Slingshot slingshot;
     private Texture pig1Texture,pig2Texture,pig3Texture;
+    private Texture redTexture,blackTexture;
+    private Texture sling;
+    private Drawable overlayDrawable;
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
@@ -74,18 +80,34 @@ public class LevelTwo implements Screen {
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig3-removebg-preview.png");
+        redTexture = new Texture("redBird.png");
+        blackTexture = new Texture("blackBird.png");
+        sling = new Texture("slingshot.png");
         batch=new SpriteBatch();
         pig1=new Pigs(pig3Texture);
         pig2=new Pigs(pig1Texture);
+        redBird = new Birds(redTexture);
+        blackBird = new Birds(blackTexture);
+        slingshot = new Slingshot(sling);
+        redBird.setSize(50,50);
+        redBird.setPosition(10,105);
+        blackBird.setSize(50,50);
+        blackBird.setPosition(70,105);
         pig1.setSize(70,70);
         pig1.setPosition(670,105);
         pig2.setSize(40,40);
         pig2.setPosition(680,205);
+        slingshot.setSize(100,100);
+        slingshot.setPosition(120,105);
+
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
 
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+
+        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
+        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
 
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -142,13 +164,18 @@ public class LevelTwo implements Screen {
             fdef.shape = shape;
             body.createFixture(fdef);
         }
-  }
+    }
     public void showPauseMenu(){
-        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
-        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
-        Image overlayImage = new Image(overlayImageDrawable);
-        overlayImage.setPosition(100, 0);
-        overlayStage.addActor(overlayImage);
+//        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
+//        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
+//        Image overlayImage = new Image(overlayImageDrawable);
+//        overlayImage.setPosition(100, 0);
+//        overlayStage.addActor(overlayImage);
+
+        Table backgroundTable = new Table();
+        backgroundTable.setFillParent(true);
+        backgroundTable.setBackground(overlayDrawable);  // Set the transparent background
+        overlayStage.addActor(backgroundTable);
 
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("continue_button.png")));
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
@@ -166,6 +193,19 @@ public class LevelTwo implements Screen {
             }
         });
 //        overlayStage.addActor(continueButton);
+
+        drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_save_btn.png")));
+        ImageButton.ImageButtonStyle buttonStyle3 = new ImageButton.ImageButtonStyle();
+        buttonStyle3.imageUp = drawable;
+        ImageButton saveButton = new ImageButton(buttonStyle3);
+        saveButton.setSize(90, 90);
+
+        saveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Clicked! GAME STATE SAVED!!");
+            }
+        });
 
         drawable = new TextureRegionDrawable(new TextureRegion(new Texture("exit_button.png")));
         ImageButton.ImageButtonStyle buttonStyle2 = new ImageButton.ImageButtonStyle();
@@ -192,15 +232,24 @@ public class LevelTwo implements Screen {
         table2.setFillParent(true);
 //        table2.center();
 //        table2.row();
-        table2.add(label).padLeft(40).padTop(-90);
+        table2.add(label).padLeft(40).padTop(-10);
         table2.row();
         table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
+        table2.row();
+        table2.add(saveButton).center().padLeft(40).padBottom(25);
         table2.row();
         table2.add(exitButton).center().padLeft(40);
 
         overlayStage.addActor(table2);
     }
-
+    private Texture createTransparentPixel(float r, float g, float b, float alpha) {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(r, g, b, alpha);  // Set RGBA for transparency
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
     @Override
     public void show() {
 
@@ -227,6 +276,9 @@ public class LevelTwo implements Screen {
         batch.begin();
         pig1.render(batch);
         pig2.render(batch);
+        redBird.render(batch);
+        blackBird.render(batch);
+        slingshot.render(batch);
         batch.end();
 //        System.out.println(stage.getActors());
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
@@ -241,9 +293,44 @@ public class LevelTwo implements Screen {
         }
         else{
             Gdx.input.setInputProcessor(stage);
+            overlayStage.clear();
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            if (!background_changedw) {
+                LevelSelector.level2complete = true;
+                background = new Texture("LevelComplete.jpg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedw = true;  // Set flag to avoid resetting on every frame
+            }
+        }
+
+        if (background_changedw) {
+            elapsed += delta;
             game.batch.begin();
+            game.batch.draw(background, 0, 0, 800, 480);  // Ensure the new background is drawn
+            game.batch.end();
+            if (elapsed >= 2) {
+                game.setScreen(new LevelSelector(game));// Transition to LevelSelector screen
+                dispose();
+            }
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+            if (!background_changedl) {
+                background = new Texture("levelfailed.jpeg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedl = true;  // Set flag to avoid resetting on every frame
+            }
+        }
+
+        if (background_changedl) {
+            elapsed += delta;
+            game.batch.begin();
+            game.batch.draw(background, 0, 0, 800, 480);  // Ensure the new background is drawn
+            game.batch.end();
+            if (elapsed >= 2) {
+                game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+                dispose();
+            }
         }
     }
 
@@ -284,6 +371,9 @@ public class LevelTwo implements Screen {
         pig1Texture.dispose();
         pig2Texture.dispose();
         pig3Texture.dispose();
+        redTexture.dispose();
+        blackTexture.dispose();
+        sling.dispose();
         batch.dispose();
     }
 }

@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
 
     public GameScreen(final Structure game) {
         this.game = game;
-        background = new Texture("AngryBirdsBG2.jpeg");
+        background = new Texture("AngryBirdsBG2.jpg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("BronacoDemoRegular.ttf"));
@@ -52,6 +52,7 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(game.settings);
+                dispose();
             }
         });
         Table table2 = new Table();
