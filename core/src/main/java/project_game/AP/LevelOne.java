@@ -75,10 +75,10 @@ public class LevelOne implements Screen {
     private Texture sling;
     private Drawable overlayDrawable;
     private Texture wood_texture,concrete_texture;
-    ArrayList<Body> wood=new ArrayList<Body>();
+    ArrayList<Wood> wood=new ArrayList<Wood>();
     ArrayList<Float> wood_width=new ArrayList<Float>();
     ArrayList<Float> wood_height=new ArrayList<Float>();
-    ArrayList<Body> concrete=new ArrayList<Body>();
+    ArrayList<Concrete> concrete=new ArrayList<Concrete>();
     ArrayList<Float> concrete_width=new ArrayList<Float>();
     ArrayList<Float> concrete_height=new ArrayList<Float>();
     public LevelOne(Structure game) {
@@ -174,7 +174,6 @@ public class LevelOne implements Screen {
         for (int layerIndex = 1; layerIndex <= 2; layerIndex++) {
             for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(RectangleMapObject.class)) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                // Define the body as a static body
                 BodyDef bdef = new BodyDef();
                 bdef.type = BodyDef.BodyType.DynamicBody;
                 bdef.position.set((rect.getX() + rect.getWidth() / 2) , (rect.getY() + rect.getHeight() / 2) );
@@ -182,39 +181,39 @@ public class LevelOne implements Screen {
                 // Create the body in the Box2D world
                 Body body = world.createBody(bdef);
 
-                // Define the shape of the body as a rectangle
-                PolygonShape shape = new PolygonShape();
-                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+//                 Define the shape of the body as a rectangle
+//                PolygonShape shape = new PolygonShape();
+//                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
-                // Fixture definition
+//                 Fixture definition
                 if(layerIndex==1){
-                    FixtureDef fdef = new FixtureDef();
-                    fdef.shape = shape;
-                    fdef.density=0.5f;
-                    fdef.friction=0.4f;
-                    fdef.restitution=0f;
-                    body.createFixture(fdef);
+//                    FixtureDef fdef = new FixtureDef();
+//                    fdef.shape = shape;
+//                    fdef.density=0.5f;
+//                    fdef.friction=0.4f;
+//                    fdef.restitution=0f;
+//                    body.createFixture(fdef);
 
                     // Dispose the shape after using it
-                    shape.dispose();
-                    wood.add(body);
-                    wood_width.add(rect.getWidth());
-                    wood_height.add(rect.getHeight());
+
+                    wood.add(new Wood(rect,body));
+//                    wood_width.add(rect.getWidth());
+//                    wood_height.add(rect.getHeight());
                 }
                 if(layerIndex==2){
-                    FixtureDef fdef = new FixtureDef();
-                    fdef.shape = shape;
-                    fdef.density=1f;
-                    fdef.friction=0.4f;
-                    fdef.restitution=0f;
-                    body.createFixture(fdef);
+//                    FixtureDef fdef = new FixtureDef();
+//                    fdef.shape = shape;
+//                    fdef.density=1f;
+//                    fdef.friction=0.4f;
+//                    fdef.restitution=0f;
+//                    body.createFixture(fdef);
+//
+//                    // Dispose the shape after using it
+//                    shape.dispose();
 
-                    // Dispose the shape after using it
-                    shape.dispose();
-
-                    concrete.add(body);
-                    concrete_height.add(rect.getHeight());
-                    concrete_width.add(rect.getWidth());
+                    concrete.add(new Concrete(rect,body));
+//                    concrete_height.add(rect.getHeight());
+//                    concrete_width.add(rect.getWidth());
                 }
             }
         }
@@ -347,24 +346,26 @@ public class LevelOne implements Screen {
         redBird.render(batch);blackBird.render(batch);yellowBird.render(batch);
         slingshot.render(batch);
         int count=0;
-        for(Body b:wood){
+        for(Wood b:wood){
             batch.draw(
                 wood_texture,
-                (b.getPosition().x)-(wood_width.get(count))/2,
-                b.getPosition().y-(wood_height.get(count))/2,
-                wood_width.get(count),
-                wood_height.get(count)
+                (b.getBody().getPosition().x)-(b.getWidth())/2,
+                (b.getBody().getPosition().y)-(b.getHeight())/2,
+
+                b.getWidth(),
+                b.getHeight()
             );
             count++;
         }
         count=0;
-        for(Body b:concrete){
+        for(Concrete b:concrete){
             batch.draw(
                 concrete_texture,
-                b.getPosition().x-concrete_width.get(count)/2,
-                b.getPosition().y-concrete_height.get(count)/2,
-                concrete_width.get(count),
-                concrete_height.get(count)
+                (b.getBody().getPosition().x)-(b.getWidth())/2,
+                (b.getBody().getPosition().y)-(b.getHeight())/2,
+
+                b.getWidth(),
+                b.getHeight()
             );
             count++;
         }
