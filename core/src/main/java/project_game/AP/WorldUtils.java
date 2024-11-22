@@ -16,5 +16,24 @@ public class WorldUtils {
         groundBody.createFixture(groundFixture);
 
         groundShape.dispose();
+
     }
+    public static void createBird(World world) {
+        BodyDef birdDef = new BodyDef();
+        birdDef.type = BodyDef.BodyType.StaticBody;
+        birdDef.position.set(100, 150);
+
+        Body birdBody = world.createBody(birdDef);
+
+        CircleShape birdShape = new CircleShape();
+        birdShape.setRadius(100f);
+
+        FixtureDef groundFixture = new FixtureDef();
+        groundFixture.shape = birdShape;
+        birdBody.createFixture(groundFixture);
+
+        birdShape.dispose();
+
+    }
+
 }
