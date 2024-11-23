@@ -382,18 +382,18 @@ public class LevelOne implements Screen {
         blackBird.render(batch);yellowBird.render(batch);
         slingshot.render(batch);
         int count=0;
-        for(Body b:wood){
+        for(Wood b:wood){
             woodTexture.setSize(wood_width.get(count),wood_height.get(count));
-            woodTexture.setPosition((b.getPosition().x)-(wood_width.get(count))/2, b.getPosition().y-(wood_height.get(count))/2);
-            woodTexture.setRotation((float) Math.toDegrees(b.getAngle()));
+            woodTexture.setPosition((b.getBody().getPosition().x)-(wood_width.get(count))/2, b.getBody().getPosition().y-(wood_height.get(count))/2);
+            woodTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             woodTexture.draw(batch);
             count++;
         }
         count=0;
-        for(Body b:concrete){
+        for(Concrete b:concrete){
             concreteTexture.setSize(concrete_width.get(count),concrete_height.get(count));
-            concreteTexture.setPosition((b.getPosition().x)-(concrete_width.get(count))/2, b.getPosition().y-(concrete_height.get(count))/2);
-            concreteTexture.setRotation((float) Math.toDegrees(b.getAngle()));
+            concreteTexture.setPosition((b.getBody().getPosition().x)-(concrete_width.get(count))/2, b.getBody().getPosition().y-(concrete_height.get(count))/2);
+            concreteTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             concreteTexture.draw(batch);
             count++;
         }
