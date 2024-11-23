@@ -87,10 +87,10 @@ public class LevelOne implements Screen {
     private Texture wood_texture,concrete_texture;
 
     //WORLD BODIES ARRAY LISTS
-    ArrayList<Body> wood=new ArrayList<Body>();
+    ArrayList<Wood> wood=new ArrayList<Wood>();
     ArrayList<Float> wood_width=new ArrayList<Float>();
     ArrayList<Float> wood_height=new ArrayList<Float>();
-    ArrayList<Body> concrete=new ArrayList<Body>();
+    ArrayList<Concrete> concrete=new ArrayList<Concrete>();
     ArrayList<Float> concrete_width=new ArrayList<Float>();
     ArrayList<Float> concrete_height=new ArrayList<Float>();
 
@@ -205,38 +205,40 @@ public class LevelOne implements Screen {
                 // Create the body in the Box2D world
                 Body body = world.createBody(bdef);
 
-                // Define the shape of the body as a rectangle
-                PolygonShape shape = new PolygonShape();
-                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+//                 Define the shape of the body as a rectangle
+//                PolygonShape shape = new PolygonShape();
+//                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
                 body.setAwake(true);
-                // Fixture definition
+//                 Fixture definition
                 if(layerIndex==1){
-                    FixtureDef fdef = new FixtureDef();
-                    fdef.shape = shape;
-                    fdef.density=1f;
-                    fdef.friction=0.4f;
+//                    FixtureDef fdef = new FixtureDef();
+//                    fdef.shape = shape;
+//                    fdef.density=1f;
+//                    fdef.friction=0.4f;
 //                    fdef.restitution=0f;
-                    body.createFixture(fdef);
+//                    body.createFixture(fdef);
 
                     // Dispose the shape after using it
-                    shape.dispose();
-                    wood.add(body);
-                    wood_width.add(rect.getWidth());
-                    wood_height.add(rect.getHeight());
+
+                    wood.add(new Wood(rect,body));
+//                    wood_width.add(rect.getWidth());
+//                    wood_height.add(rect.getHeight());
                 }
                 if(layerIndex==2){
-                    FixtureDef fdef = new FixtureDef();
-                    fdef.shape = shape;
-                    fdef.density=2f;
-                    fdef.friction=0.4f;
+//                    FixtureDef fdef = new FixtureDef();
+//                    fdef.shape = shape;
+//                    fdef.density=2f;
+//                    fdef.friction=0.4f;
 //                    fdef.restitution=0f;
-                    body.createFixture(fdef);
+//                    body.createFixture(fdef);
+//
+//                    // Dispose the shape after using it
+//                    shape.dispose();
 
-                    // Dispose the shape after using it
-                    shape.dispose();
-                    concrete.add(body);
-                    concrete_height.add(rect.getHeight());
-                    concrete_width.add(rect.getWidth());
+
+                    concrete.add(new Concrete(rect,body));
+//                    concrete_height.add(rect.getHeight());
+//                    concrete_width.add(rect.getWidth());
                 }
             }
         }
