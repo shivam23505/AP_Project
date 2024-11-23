@@ -165,9 +165,7 @@ public class LevelOne implements Screen {
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
         buttonStyle.imageUp = drawable;
         buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
-//
         ImageButton pauseButton = new ImageButton(buttonStyle);
-//
         pauseButton.setSize(50, 50);
 
         Table table = new Table();
