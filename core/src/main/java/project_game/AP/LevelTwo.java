@@ -3,9 +3,11 @@ package project_game.AP;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -15,12 +17,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -29,92 +32,119 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class LevelTwo implements Screen {
+    private Box2DDebugRenderer debugRenderer;
     final Structure game;
     private Texture background;
     private OrthographicCamera camera;
     private Viewport viewport;
+    private BitmapFont font;
+    private SpriteBatch batch;
+
+    //Font Varibales
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
-    private BitmapFont font;
     private Stage stage;
-    private Skin skin;
 
-    //Tiled map variables
+    // Tiled map variables
     private TmxMapLoader mapLoader;
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer renderer;
 
-    //Box2d Variables
+    // Box2d Variables
     private World world;
     private Box2DDebugRenderer b2dr;
 
     //Overlay
     private Stage overlayStage;
     private boolean showOverlay;
+
+    // Constant for tile size (adjust according to your tile size)
+    private static final float TILE_SIZE = 16.0f;
     private float elapsed=0;
     private boolean background_changedw=false;
     private boolean background_changedl=false;
-    private SpriteBatch batch;
+
+    //PIGS BIRD SLIGNSHOT TEXTURES
     Pigs pig1;
     Pigs pig2;
-    Birds redBird;
-    Birds blackBird;
+    //    Pigs pig3;
+    Birds redBird,yellowBird,blackBird;
     Slingshot slingshot;
-    private Texture pig1Texture,pig2Texture,pig3Texture;
-    private Texture redTexture,blackTexture;
+    private Texture pig1Texture,pig2Texture;
+    private Sprite redTexture,blackTexture;
+    private Sprite woodTexture,concreteTexture;
+    private Texture yellowTexture;
     private Texture sling;
+
     private Drawable overlayDrawable;
+
     private Texture wood_texture,concrete_texture;
-    ArrayList<Body> wood=new ArrayList<Body>();
-    ArrayList<Float> wood_width=new ArrayList<Float>();
-    ArrayList<Float> wood_height=new ArrayList<Float>();
+
+    //WORLD BODIES ARRAY LISTS
+    ArrayList<Wood> wood=new ArrayList<Wood>();
+    ArrayList<Concrete> concrete=new ArrayList<Concrete>();
+
+    //MOVING PROJECTILE BODY VARIABLES
+    Body projectileBody,movingbody;
+    private static final float PPM = 100f; // Pixels per meter
+    private Vector2 startPoint = new Vector2(150,180); // Drag start
+    private Vector2 endPoint = new Vector2();   // Drag end
+    private boolean isDragging = false;
+
     public LevelTwo(Structure game) {
         this.game = game;
         background = new Texture("Level_Two_bg.jpg");
-        wood_texture=new Texture("wooden_textureAB.png");
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
         viewport = new FitViewport(800, 480, camera);
-        pig1Texture=new Texture("pig1-removebg-preview.png");
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        overlayStage = new Stage(new ScreenViewport());
+        showOverlay = false;
+
+        //PIGS BIRD SLINGSHOT INITIALIZATION
+        pig1Texture=new Texture("pig3-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
-        pig3Texture=new Texture("pig3-removebg-preview.png");
-        redTexture = new Texture("redBird.png");
-        blackTexture = new Texture("blackBird.png");
-        sling = new Texture("slingshot.png");
-        batch=new SpriteBatch();
-        pig1=new Pigs(pig3Texture);
-        pig2=new Pigs(pig1Texture);
-        redBird = new Birds(redTexture);
-        blackBird = new Birds(blackTexture);
+//        pig3Texture=new Texture("pig1-removebg-preview.png");
+        redTexture = new Sprite(new Texture("redBird.png"));
+        redTexture.setSize(30 * 2 , 30 * 2 );
+//        yellowTexture = new Texture("yellowBird.png");
+        blackTexture = new Sprite(new Texture("blackBird.png"));
+        blackTexture.setSize(30 * 2 , 30 * 2 );
+        wood_texture=new Texture("wooden_textureAB.png");
+        woodTexture = new Sprite(new Texture("wooden_textureAB.png"));
+//        concrete_texture=new Texture("concrete_blockAB.jpeg");
+//        concreteTexture=new Sprite(new Texture("concrete_blockAB.jpeg"));
+        sling =new Texture("slingshot.png");
+        pig1=new Pigs(pig1Texture);
+        pig2=new Pigs(pig2Texture);
+//        pig3=new Pigs(pig3Texture);
+        redBird=new Birds(redTexture.getTexture());
+//        yellowBird=new Birds(yellowTexture);
+        blackBird=new Birds(blackTexture.getTexture());
         slingshot = new Slingshot(sling);
-        redBird.setSize(50,50);
-        redBird.setPosition(10,105);
-        blackBird.setSize(50,50);
-        blackBird.setPosition(70,105);
+
+        //PIGS BIRD SLINGSHOT POSITION SIZE SETTING
+        batch=new SpriteBatch();
         pig1.setSize(70,70);
         pig1.setPosition(670,105);
         pig2.setSize(40,40);
         pig2.setPosition(680,205);
+        redBird.setSize(50,50);
+        redBird.setPosition(10,105);
+//        yellowBird.setSize(50,50);
+//        yellowBird.setPosition(45,100);
+        blackBird.setSize(50,50);
+        blackBird.setPosition(90,105);
         slingshot.setSize(100,100);
-        slingshot.setPosition(120,105);
+        slingshot.setPosition(130,105);
 
-        overlayStage = new Stage(new ScreenViewport());
-        showOverlay = false;
-
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-
-        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
-        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
-
+        //STAGE BUTTON
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 40;
@@ -122,17 +152,15 @@ public class LevelTwo implements Screen {
         fontParameter.color = Color.WHITE;
         font = fontGenerator.generateFont(fontParameter);
 
-//        buttonImage = new Texture("button.png");
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json")); // Load a skin if you have one
-//        menuPlay = new Texture("menu_play_btn.png");
-////
+        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
+        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
+
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
         ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
         buttonStyle.imageUp = drawable;
         buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
-//
         ImageButton pauseButton = new ImageButton(buttonStyle);
-//
         pauseButton.setSize(50, 50);
 
         Table table = new Table();
@@ -149,34 +177,81 @@ public class LevelTwo implements Screen {
                 showPauseMenu();
             }
         });
+
+        //TILE MAP AND BOX2D WORLD CODE
+        // Load the tilemap and set the renderer with the correct scale
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("level_two_map.tmx");
+        tiledMap = mapLoader.load("Level_two_map.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        world = new World(new Vector2(0,-10f),false);
+        world = new World(new Vector2(0, -9.81f), false);
         b2dr = new Box2DDebugRenderer();
         WorldUtils.createGround(world);
 
-        BodyDef bdef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fdef = new FixtureDef();
-        Body body;
+//        System.out.println("Number of layers: " + tiledMap.getLayers().getCount());
+        // Iterate over objects in the second layer (adjust layer if necessary)
+        for (int layerIndex = 1; layerIndex <= 1; layerIndex++) {
+            for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(RectangleMapObject.class)) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                BodyDef bdef = new BodyDef();
+                bdef.type = BodyDef.BodyType.DynamicBody;
+                bdef.position.set((rect.getX() + rect.getWidth() / 2) , (rect.getY() + rect.getHeight() / 2) );
 
-        for (MapObject object : tiledMap.getLayers().get(1).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            bdef.type = BodyDef.BodyType.DynamicBody;
-            bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.y + rect.getHeight() / 2);
-            body = world.createBody(bdef);
-            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
-            fdef.shape = shape;
-            fdef.density=0.5f;
-            fdef.friction=0.4f;
-            fdef.restitution=0f;
-            body.createFixture(fdef);
-            wood.add(body);
-            wood_width.add(rect.getWidth());
-            wood_height.add(rect.getHeight());
+                // Create the body in the Box2D world
+                Body body = world.createBody(bdef);
+
+//                 Define the shape of the body as a rectangle
+//                PolygonShape shape = new PolygonShape();
+//                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+                body.setAwake(true);
+//                 Fixture definition
+                if(layerIndex==1){
+//                    FixtureDef fdef = new FixtureDef();
+//                    fdef.shape = shape;
+//                    fdef.density=1f;
+//                    fdef.friction=0.4f;
+//                    fdef.restitution=0f;
+//                    body.createFixture(fdef);
+
+                    // Dispose the shape after using it
+
+                    wood.add(new Wood(rect,body));
+//                    wood_width.add(rect.getWidth());
+//                    wood_height.add(rect.getHeight());
+                }
+//                if(layerIndex==2){
+////                    FixtureDef fdef = new FixtureDef();
+////                    fdef.shape = shape;
+////                    fdef.density=2f;
+////                    fdef.friction=0.4f;
+////                    fdef.restitution=0f;
+////                    body.createFixture(fdef);
+////
+////                    // Dispose the shape after using it
+////                    shape.dispose();
+//
+//
+//                    concrete.add(new Concrete(rect,body));
+////                    concrete_height.add(rect.getHeight());
+////                    concrete_width.add(rect.getWidth());
+//                }
+            }
         }
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(90,105);
+
+        projectileBody = world.createBody(bodyDef);
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(30f);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = circleShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.3f;
+        projectileBody.createFixture(fixtureDef);
+        projectileBody.setAwake(false);
+        circleShape.dispose();
+
     }
     public void showPauseMenu(){
 //        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
@@ -197,8 +272,6 @@ public class LevelTwo implements Screen {
 
         ImageButton continueButton = new ImageButton(buttonStyle);
         continueButton.setSize(90, 90);
-//        TextButton button1 = new TextButton("RESUME", skin);
-//        button1.setPosition(150, 100);
         continueButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -227,8 +300,6 @@ public class LevelTwo implements Screen {
         ImageButton exitButton = new ImageButton(buttonStyle2);
         exitButton.setSize(90, 90);
 
-//        TextButton button2 = new TextButton("QUIT", skin);
-//        button2.setPosition(250, 100);
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -240,11 +311,10 @@ public class LevelTwo implements Screen {
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = font;
         Label label = new Label("PAUSED",labelStyle);
-//        overlayStage.addActor(exitButton);
+
         Table table2 = new Table();
         table2.setFillParent(true);
-//        table2.center();
-//        table2.row();
+
         table2.add(label).padLeft(40).padTop(-10);
         table2.row();
         table2.add(continueButton).padTop(65).padLeft(40).padBottom(25);
@@ -263,56 +333,68 @@ public class LevelTwo implements Screen {
         pixmap.dispose();
         return texture;
     }
+
     @Override
     public void show() {
-        b2dr = new Box2DDebugRenderer();
+        debugRenderer = new Box2DDebugRenderer();
     }
-    public void update(float delta){
+
+    public void update(float delta) {
         camera.update();
         world.step(1/60f,6,2);
         renderer.setView(camera);
         batch.setProjectionMatrix(camera.combined);
-
     }
+
     @Override
     public void render(float delta) {
-        // Clear the screen with a black color
         update(delta);
+        // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
-        camera.update();
+
+
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        game.batch.draw(background, 0, 0, 800, 480);  // Draw background at (0, 0)
-        game.batch.end();  // End the background batch
-        camera.position.set(400,240,0);
+        game.batch.draw(background, 0, 0, 800, 480);
+        game.batch.end();
+
+        // Step 2: Set the camera and update its position
+        camera.position.set(400, 240, 0);
+        camera.update();
+
+        // Render the tile map
         renderer.setView(camera);
         renderer.render();
 
+        // RENDER BOX2D BODY LINES -------------------------------------------
         b2dr.render(world, camera.combined);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+
         pig1.render(batch);
         pig2.render(batch);
+//        pig3.render(batch);
         redBird.render(batch);
-        blackBird.render(batch);
+//        yellowBird.render(batch);
         slingshot.render(batch);
-        int count=0;
-        for(Body b:wood){
-            batch.draw(
-                wood_texture,
-                b.getPosition().x-(wood_width.get(count))/2,
-                b.getPosition().y-wood_height.get(count)/2,
-                wood_width.get(count),
-                wood_height.get(count)
-            );
-            count++;
+        for(Wood b:wood){
+            woodTexture.setSize(b.getWidth(),b.getHeight());
+            woodTexture.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            woodTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            woodTexture.draw(batch);
         }
+//        for(Concrete b:concrete){
+//            concreteTexture.setSize(b.getWidth(),b.getHeight());
+//            concreteTexture.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+//            concreteTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+//            concreteTexture.draw(batch);
+//        }
         batch.end();
-//        System.out.println(stage.getActors());
-        stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
-//        System.out.println("Number of actors in stage: " + stage.getActors().size); // Check if the stage has actors
-        stage.draw();
-//        stage.setDebugAll(true);
+        //-------------------------------------------------------------------
+
+        debugRenderer.render(world, camera.combined);
+
+        //PAUSE BUTTON INPUT PROCESSOR HANDLE -----------------
         if (showOverlay) {
             Gdx.input.setInputProcessor(overlayStage);
 
@@ -323,15 +405,82 @@ public class LevelTwo implements Screen {
             Gdx.input.setInputProcessor(stage);
             overlayStage.clear();
         }
+        //---------------------------------------------------
+
+        //LAUNCH BIRD INPUT DRAGGING HANDLING------------------------------------
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                projectileBody.setAwake(false);
+                projectileBody.setTransform(startPoint.x,startPoint.y,0);
+                isDragging = true;
+                return true;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+
+                int maxDistance = 50; // radius of the circle
+                float centerX = startPoint.x;  // x-coordinate of the circle center
+                float centerY = startPoint.y;  // y-coordinate of the circle center
+                if (isDragging) {
+                    Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+                    float dx = worldCoords.x - centerX;
+                    float dy = worldCoords.y - centerY;
+                    float distance = (float) Math.sqrt(dx * dx + dy * dy);
+                    if (distance > maxDistance) {
+                        float scale = maxDistance / distance; // Scale factor to bring the point within the circle
+                        worldCoords.x = centerX + dx * scale;
+                        worldCoords.y = centerY + dy * scale;
+                    }
+                    projectileBody.setTransform(worldCoords.x, worldCoords.y, 0);
+                }
+                return true;
+            }
+            //
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if (isDragging) {
+                    isDragging = false;
+                    projectileBody.setAwake(true);
+                    Vector2 position = new Vector2(projectileBody.getPosition()); // Get current position
+                    float angle = projectileBody.getAngle();         // Get current rotation
+                    projectileBody.setTransform(position.x, position.y, angle);
+//                    Vector2 velocity = new Vector2(startPoint).sub(position).scl(5f); // Scale the speed
+                    Vector2 velocity = new Vector2(400f, 50f);
+                    projectileBody.setLinearVelocity(velocity);
+                    return true;
+                }
+                return true;
+            }
+        });
+        //--------------------------------------------------------------------------
+
+        //DRAWING THE BIRD ON THE PROJECTILE BODY-----------
+        batch.begin();
+
+        Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
+        blackTexture.setPosition(bodyPosition.x - blackTexture.getWidth() / 2,
+            bodyPosition.y - blackTexture.getHeight() / 2); // Center the texture
+        blackTexture.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
+        blackTexture.draw(batch); // Draw the texture
+//        System.out.println("Texture position: " + redTexture.getX() + ", " + redTexture.getY());
+        batch.end();
+        //---------------------------------------------------
+
+
+        stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
+        stage.draw();
+
+        //WINNING AND LOSING SCREEN HANDLING
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             if (!background_changedw) {
-                LevelSelector.level2complete = true;
+                LevelSelector.level1complete = true;
                 background = new Texture("LevelComplete.jpg");  // Change background
                 elapsed = 0;  // Reset the timer
                 background_changedw = true;  // Set flag to avoid resetting on every frame
             }
         }
-
         if (background_changedw) {
             elapsed += delta;
             game.batch.begin();
@@ -360,48 +509,44 @@ public class LevelTwo implements Screen {
                 dispose();
             }
         }
+
+
+
     }
 
 
-
     @Override
-    public void resize(int i, int i1) {
-        viewport.update(i,i1);
-        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+    public void resize(int width, int height) {
+        viewport.update(width,height);
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
-        background.dispose();
-        tiledMap.dispose();
-        renderer.dispose();
-        world.dispose();
-        b2dr.dispose();
-        fontGenerator.dispose();
-        font.dispose();
-        skin.dispose();
-        stage.dispose();
+        if(background!=null){background.dispose();}
+        if(tiledMap!=null){tiledMap.dispose();}
+        if(renderer!=null){renderer.dispose();}
+        if(world!=null){world.dispose();}
+        if(b2dr!=null){b2dr.dispose();}
         pig1Texture.dispose();
         pig2Texture.dispose();
-        pig3Texture.dispose();
-        redTexture.dispose();
-        blackTexture.dispose();
-        sling.dispose();
+//        pig3Texture.dispose();
+        yellowTexture.dispose();
+        redTexture.getTexture().dispose();
+        blackTexture.getTexture().dispose();
+        overlayStage.dispose();
+
         batch.dispose();
     }
 }
