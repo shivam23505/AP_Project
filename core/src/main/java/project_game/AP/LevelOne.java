@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -86,17 +87,15 @@ public class LevelOne implements Screen {
 
     private Texture wood_texture,concrete_texture;
 
+    private ShapeRenderer shapeRenderer;
+
     //WORLD BODIES ARRAY LISTS
     ArrayList<Wood> wood=new ArrayList<Wood>();
-    ArrayList<Float> wood_width=new ArrayList<Float>();
-    ArrayList<Float> wood_height=new ArrayList<Float>();
     ArrayList<Concrete> concrete=new ArrayList<Concrete>();
-    ArrayList<Float> concrete_width=new ArrayList<Float>();
-    ArrayList<Float> concrete_height=new ArrayList<Float>();
 
     //MOVIG PROJECTILE BODY VARIABLES
     Body projectileBody,movingbody;
-    private static final float PPM = 100f; // Pixels per meter
+    private static final float PPM = 16f; // Pixels per meter
     private Vector2 startPoint = new Vector2(150,180); // Drag start
     private Vector2 endPoint = new Vector2();   // Drag end
     private boolean isDragging = false;
@@ -110,19 +109,22 @@ public class LevelOne implements Screen {
         Gdx.input.setInputProcessor(stage);
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
-
+        shapeRenderer = new ShapeRenderer();
         //PIGS BIRD SLINGSHOT INITIALIZATION
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig1-removebg-preview.png");
         redTexture = new Sprite(new Texture("redBird.png"));
+        redTexture.setOriginCenter();
         redTexture.setSize(30 * 2 , 30 * 2 );
         yellowTexture = new Texture("yellowBird.png");
         blackTexture = new Texture("blackBird.png");
         wood_texture=new Texture("wooden_textureAB.png");
         woodTexture = new Sprite(new Texture("wooden_textureAB.png"));
+        woodTexture.setOriginCenter();
         concrete_texture=new Texture("concrete_blockAB.jpeg");
         concreteTexture=new Sprite(new Texture("concrete_blockAB.jpeg"));
+        concreteTexture.setOriginCenter();
         sling =new Texture("slingshot.png");
         pig1=new Pigs(pig1Texture);
         pig2=new Pigs(pig2Texture);
@@ -350,7 +352,23 @@ public class LevelOne implements Screen {
         renderer.setView(camera);
         batch.setProjectionMatrix(camera.combined);
     }
+    public void drawTrajectory(float x, float y) {
+        System.out.println(x+"  "+y);
+        Vector2 velo = new Vector2(400/PPM, 50/PPM );
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.WHITE);
+
+        for (int i = 0; i < 10; i++) {
+
+            shapeRenderer.circle(x, y, 20);
+
+            x += 2 * velo.x;
+            y += 2 * velo.y;
+            velo.y += 2 * (world.getGravity().y/PPM);
+        }
+        shapeRenderer.end();
+    }
     @Override
     public void render(float delta) {
         update(delta);
@@ -382,19 +400,22 @@ public class LevelOne implements Screen {
         blackBird.render(batch);yellowBird.render(batch);
         slingshot.render(batch);
         int count=0;
+
         for(Wood b:wood){
-            woodTexture.setSize(wood_width.get(count),wood_height.get(count));
-            woodTexture.setPosition((b.getBody().getPosition().x)-(wood_width.get(count))/2, b.getBody().getPosition().y-(wood_height.get(count))/2);
-            woodTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
-            woodTexture.draw(batch);
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
             count++;
         }
         count=0;
+
         for(Concrete b:concrete){
-            concreteTexture.setSize(concrete_width.get(count),concrete_height.get(count));
-            concreteTexture.setPosition((b.getBody().getPosition().x)-(concrete_width.get(count))/2, b.getBody().getPosition().y-(concrete_height.get(count))/2);
-            concreteTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
-            concreteTexture.draw(batch);
+            b.sprite.setOriginCenter();
+//            b.sprite.setSize(b.getWidth(),b.getHeight());
+            b.sprite.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
             count++;
         }
         batch.end();
@@ -432,7 +453,9 @@ public class LevelOne implements Screen {
                 float centerX = startPoint.x;  // x-coordinate of the circle center
                 float centerY = startPoint.y;  // y-coordinate of the circle center
                 if (isDragging) {
+
                     Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+
                     float dx = worldCoords.x - centerX;
                     float dy = worldCoords.y - centerY;
                     float distance = (float) Math.sqrt(dx * dx + dy * dy);
@@ -442,10 +465,10 @@ public class LevelOne implements Screen {
                         worldCoords.y = centerY + dy * scale;
                     }
                     projectileBody.setTransform(worldCoords.x, worldCoords.y, 0);
+                    drawTrajectory(worldCoords.x, worldCoords.y);
                 }
                 return true;
             }
-//
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (isDragging) {
@@ -466,11 +489,13 @@ public class LevelOne implements Screen {
 
         //DRAWING THE BIRD ON THE PROJECTILE BODY-----------
         batch.begin();
-
+        redTexture.setOriginCenter();
         Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
         redTexture.setPosition(bodyPosition.x - redTexture.getWidth() / 2,
             bodyPosition.y - redTexture.getHeight() / 2); // Center the texture
         redTexture.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
+//        drawTrajectory(bodyPosition.x,bodyPosition.y );
+
         redTexture.draw(batch); // Draw the texture
 //        System.out.println("Texture position: " + redTexture.getX() + ", " + redTexture.getY());
         batch.end();

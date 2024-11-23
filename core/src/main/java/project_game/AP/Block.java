@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -39,10 +40,12 @@ public abstract class Block {
     protected float width;
     protected float height;
 
+
     public Block(Rectangle rect, Body body) {
         this.body = body;
         this.width = rect.getWidth();
         this.height = rect.getHeight();
+
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2, height / 2);
         FixtureDef fdef = createFixtureDef(shape);

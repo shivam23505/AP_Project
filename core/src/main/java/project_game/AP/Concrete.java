@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -34,11 +35,12 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Concrete extends Block{
-    private Body body;
-    private float width;
-    private float height;
+    public Sprite sprite;
     public Concrete(Rectangle rect,Body body1){
         super(rect,body1);
+        sprite = new Sprite(new Texture("concrete_blockAB.jpeg"));
+        sprite.setSize(width,height);
+        sprite.setOriginCenter();
     }
     protected FixtureDef createFixtureDef(PolygonShape shape){
         FixtureDef fdef = new FixtureDef();
