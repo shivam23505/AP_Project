@@ -60,8 +60,8 @@ public class Concrete extends Block{
     }
 
     @Override
-    public void getHealth() {
-
+    public int getHealth() {
+        return currHealth;
     }
 }
 

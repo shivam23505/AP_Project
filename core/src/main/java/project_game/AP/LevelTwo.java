@@ -121,20 +121,20 @@ public class LevelTwo implements Screen {
 //        concrete_texture=new Texture("concrete_blockAB.jpeg");
 //        concreteTexture=new Sprite(new Texture("concrete_blockAB.jpeg"));
         sling =new Texture("slingshot.png");
-        pig1=new Pigs(pig1Texture);
-        pig2=new Pigs(pig2Texture);
+//        pig1=new Pigs(pig1Texture);
+//        pig2=new Pigs(pig2Texture);
 //        pig3=new Pigs(pig3Texture);
-        redBird=new Birds(redTexture.getTexture());
+        redBird=new Birds(redTexture.getTexture(),4);
 //        yellowBird=new Birds(yellowTexture);
-        blackBird=new Birds(blackTexture.getTexture());
+        blackBird=new Birds(blackTexture.getTexture(),6);
         slingshot = new Slingshot(sling);
 
         //PIGS BIRD SLINGSHOT POSITION SIZE SETTING
         batch=new SpriteBatch();
-        pig1.setSize(70,70);
-        pig1.setPosition(670,105);
-        pig2.setSize(40,40);
-        pig2.setPosition(680,205);
+//        pig1.setSize(70,70);
+//        pig1.setPosition(670,105);
+//        pig2.setSize(40,40);
+//        pig2.setPosition(680,205);
         redBird.setSize(50,50);
         redBird.setPosition(10,105);
 //        yellowBird.setSize(50,50);
@@ -371,8 +371,8 @@ public class LevelTwo implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        pig1.render(batch);
-        pig2.render(batch);
+//        pig1.render(batch);
+//        pig2.render(batch);
 //        pig3.render(batch);
         redBird.render(batch);
 //        yellowBird.render(batch);

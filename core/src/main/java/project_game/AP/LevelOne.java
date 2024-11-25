@@ -13,15 +13,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -72,15 +70,15 @@ public class LevelOne implements Screen {
     private boolean background_changedw=false;
     private boolean background_changedl=false;
     //PIGS BIRD SLIGNSHOT TEXTURES
-    Pigs pig1;
-    Pigs pig2;
-    Pigs pig3;
+
     Birds redBird,yellowBird,blackBird;
     Slingshot slingshot;
     private Texture pig1Texture,pig2Texture,pig3Texture;
-    private Sprite redTexture;
+    private Texture redTexture;
     private Sprite woodTexture,concreteTexture;
     private Texture yellowTexture,blackTexture;
+
+    private Sprite BlackSitting,YellowSitting,RedSitting;
     private Texture sling;
 
     private Drawable overlayDrawable;
@@ -92,13 +90,19 @@ public class LevelOne implements Screen {
     //WORLD BODIES ARRAY LISTS
     static ArrayList<Wood> wood=new ArrayList<Wood>();
     static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
+    static ArrayList<SmallPig> smallpig = new ArrayList<SmallPig>();
+    static ArrayList<LargePig> largepig = new ArrayList<LargePig>();
 
     //MOVIG PROJECTILE BODY VARIABLES
     Body projectileBody,movingbody;
     private static final float PPM = 16f; // Pixels per meter
-    private Vector2 startPoint = new Vector2(150,180); // Drag start
+    static Vector2 startPoint = new Vector2(150,180); // Drag start
     private Vector2 endPoint = new Vector2();   // Drag end
     private boolean isDragging = false;
+
+    private int BirdCount = 0;
+
+
     public LevelOne(Structure game) {
         this.game = game;
 
@@ -114,11 +118,12 @@ public class LevelOne implements Screen {
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig1-removebg-preview.png");
-        redTexture = new Sprite(new Texture("redBird.png"));
-        redTexture.setOriginCenter();
-        redTexture.setSize(30 * 2 , 30 * 2 );
+
+
         yellowTexture = new Texture("yellowBird.png");
+        YellowSitting = new Sprite(new Texture("yellowBird.png"));
         blackTexture = new Texture("blackBird.png");
+        BlackSitting = new Sprite(new Texture("blackBird.png"));
         wood_texture=new Texture("wooden_textureAB.png");
         woodTexture = new Sprite(new Texture("wooden_textureAB.png"));
         woodTexture.setOriginCenter();
@@ -126,28 +131,19 @@ public class LevelOne implements Screen {
         concreteTexture=new Sprite(new Texture("concrete_blockAB.jpeg"));
         concreteTexture.setOriginCenter();
         sling =new Texture("slingshot.png");
-        pig1=new Pigs(pig1Texture);
-        pig2=new Pigs(pig2Texture);
-        pig3=new Pigs(pig3Texture);
-        redBird=new Birds(redTexture.getTexture());
-        yellowBird=new Birds(yellowTexture);
-        blackBird=new Birds(blackTexture);
+
+        redTexture = new Texture("redBird.png");
+        redBird=new Birds(redTexture,4);
         slingshot = new Slingshot(sling);
 
         //PIGS BIRD SLINGSHOT POSITION SIZE SETTING
         batch=new SpriteBatch();
-        pig1.setPosition(600,140);
-        pig1.setSize(40,40);
-        pig2.setPosition(655,255);
-        pig2.setSize(50,50);
-        pig3.setPosition(710,220);
-        pig3.setSize(40,40);
         redBird.setSize(50,50);
         redBird.setPosition(90,105);
-        yellowBird.setSize(50,50);
-        yellowBird.setPosition(45,100);
-        blackBird.setSize(50,50);
-        blackBird.setPosition(5,105);
+        YellowSitting.setSize(50,50);
+        YellowSitting.setPosition(45,100);
+        BlackSitting.setSize(50,50);
+        BlackSitting.setPosition(5,105);
         slingshot.setSize(100,100);
         slingshot.setPosition(130,105);
 
@@ -207,44 +203,42 @@ public class LevelOne implements Screen {
 
                 // Create the body in the Box2D world
                 Body body = world.createBody(bdef);
-
-//                 Define the shape of the body as a rectangle
-//                PolygonShape shape = new PolygonShape();
-//                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
                 body.setAwake(true);
 
 //                 Fixture definition
                 if(layerIndex==1){
                     Wood NewWood = new Wood(rect,body);
-//                    FixtureDef fdef = new FixtureDef();
-//                    fdef.shape = shape;
-//                    fdef.density=1f;
-//                    fdef.friction=0.4f;
-//                    fdef.restitution=0f;
-//                    body.createFixture(fdef);
-
-                    // Dispose the shape after using it
                     body.setUserData(NewWood);
                     wood.add(NewWood);
-//                    wood_width.add(rect.getWidth());
-//                    wood_height.add(rect.getHeight());
                 }
                 if(layerIndex==2){
                     Concrete newConcrete = new Concrete(rect,body);
-//                    FixtureDef fdef = new FixtureDef();
-//                    fdef.shape = shape;
-//                    fdef.density=2f;
-//                    fdef.friction=0.4f;
-//                    fdef.restitution=0f;
-//                    body.createFixture(fdef);
-//
-//                    // Dispose the shape after using it
-//                    shape.dispose();
-
                     body.setUserData(newConcrete);
                     concrete.add(newConcrete);
-//                    concrete_height.add(rect.getHeight());
-//                    concrete_width.add(rect.getWidth());
+                }
+            }
+        }
+        for (int layerIndex = 3; layerIndex <= 4; layerIndex++) {
+            for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(EllipseMapObject.class)) {
+                Ellipse ellipse = ((EllipseMapObject) object).getEllipse();
+                BodyDef bdef = new BodyDef();
+                bdef.type = BodyDef.BodyType.DynamicBody;
+                bdef.position.set((ellipse.x + ellipse.width/ 2) , (ellipse.y + ellipse.height / 2));
+
+                // Create the body in the Box2D world
+                Body body = world.createBody(bdef);
+                body.setAwake(true);
+
+//                 Fixture definition
+                if(layerIndex==3){
+                    SmallPig NewPig = new SmallPig(ellipse,body);
+                    body.setUserData(NewPig);
+                    smallpig.add(NewPig);
+                }
+                if(layerIndex==4){
+                    LargePig NewPig = new LargePig(ellipse,body);
+                    body.setUserData(NewPig);
+                    largepig.add(NewPig);
                 }
             }
         }
@@ -253,6 +247,7 @@ public class LevelOne implements Screen {
         bodyDef.position.set(90,105);
 
         projectileBody = world.createBody(bodyDef);
+        projectileBody.setUserData(redBird);
         CircleShape circleShape = new CircleShape();
         circleShape.setRadius(30f);
         FixtureDef fixtureDef = new FixtureDef();
@@ -314,7 +309,7 @@ public class LevelOne implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Button clicked");
+//                System.out.println("Button clicked");
                 game.setScreen(new LevelSelector(game));
                 dispose();
             }
@@ -396,10 +391,13 @@ public class LevelOne implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        pig1.render(batch);
-        pig2.render(batch);
-        pig3.render(batch);
-        blackBird.render(batch);yellowBird.render(batch);
+//        blackBird.render(batch);yellowBird.render(batch);
+        if (BirdCount < 2){
+            YellowSitting.draw(batch);
+        }
+        if (BirdCount < 3){
+            BlackSitting.draw(batch);
+        }
         slingshot.render(batch);
 
 
@@ -412,6 +410,14 @@ public class LevelOne implements Screen {
                 world.destroyBody(b.getBody());
                 continue;
             }
+            // Get the rightmost point in world coordinates
+            float screenRight = 800; // Adjust for pixel-to-meter ratio (PPM)
+
+            // Check if the object's position exceeds the rightmost point
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
+                // Constrain the position to the screen boundary
+                b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
             b.sprite.setOriginCenter();
             b.sprite.setPosition(
                 b.getBody().getPosition().x - b.getWidth() / 2,
@@ -419,9 +425,8 @@ public class LevelOne implements Screen {
             );
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
-
-
         }
+
         Iterator<Concrete> iterator2 = concrete.iterator();
 
         while (iterator2.hasNext()) {
@@ -440,6 +445,50 @@ public class LevelOne implements Screen {
             b.sprite.draw(batch);
 
         }
+        Iterator<SmallPig> iterator3 = smallpig.iterator();
+
+        while (iterator3.hasNext()) {
+            SmallPig b = iterator3.next();
+            if (b.MarkForRemoval) {
+                iterator3.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
+
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > 800) {
+                // Constrain the position to the screen boundary
+                b.getBody().setTransform(800 - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
+        }
+        Iterator<LargePig> iterator4 = largepig.iterator();
+
+        while (iterator4.hasNext()) {
+            LargePig b = iterator4.next();
+            if (b.MarkForRemoval) {
+                iterator4.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > 800) {
+                // Constrain the position to the screen boundary
+                b.getBody().setTransform(800 - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
+        }
+
         batch.end();
         //-------------------------------------------------------------------
 
@@ -462,9 +511,17 @@ public class LevelOne implements Screen {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//                System.out.println(BirdCount);
+                if (BirdCount == 1){
+
+                    redBird.setTexture(yellowTexture,6);
+                }
+                else if (BirdCount == 2){
+                    redBird.setTexture(blackTexture,8);
+                }
                 projectileBody.setAwake(false);
                 projectileBody.setTransform(startPoint.x,startPoint.y,0);
-                isDragging = true;
+
                 return true;
             }
 
@@ -474,6 +531,7 @@ public class LevelOne implements Screen {
                 int maxDistance = 50; // radius of the circle
                 float centerX = startPoint.x;  // x-coordinate of the circle center
                 float centerY = startPoint.y;  // y-coordinate of the circle center
+                isDragging = true;
                 if (isDragging) {
 
                     Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
@@ -489,18 +547,20 @@ public class LevelOne implements Screen {
                     projectileBody.setTransform(worldCoords.x, worldCoords.y, 0);
                     drawTrajectory(worldCoords.x, worldCoords.y);
                 }
+
                 return true;
             }
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (isDragging) {
+                    BirdCount++;
                     isDragging = false;
                     projectileBody.setAwake(true);
                     Vector2 position = new Vector2(projectileBody.getPosition()); // Get current position
                     float angle = projectileBody.getAngle();         // Get current rotation
                     projectileBody.setTransform(position.x, position.y, angle);
 //                    Vector2 velocity = new Vector2(startPoint).sub(position).scl(5f); // Scale the speed
-                    Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*10, (startPoint.y+50-projectileBody.getPosition().y)*3);
+                    Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*15, (startPoint.y+50-projectileBody.getPosition().y)*3);
                     projectileBody.setLinearVelocity(velocity);
                     return true;
                 }
@@ -511,14 +571,14 @@ public class LevelOne implements Screen {
 
         //DRAWING THE BIRD ON THE PROJECTILE BODY-----------
         batch.begin();
-        redTexture.setOriginCenter();
+        redBird.sprite.setOriginCenter();
         Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
-        redTexture.setPosition(bodyPosition.x - redTexture.getWidth() / 2,
-            bodyPosition.y - redTexture.getHeight() / 2); // Center the texture
-        redTexture.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
+        redBird.sprite.setPosition(bodyPosition.x - redBird.sprite.getWidth() / 2,
+            bodyPosition.y - redBird.sprite.getHeight() / 2); // Center the texture
+        redBird.sprite.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
 //        drawTrajectory(bodyPosition.x,bodyPosition.y );
 
-        redTexture.draw(batch); // Draw the texture
+        redBird.sprite.draw(batch); // Draw the texture
 //        System.out.println("Texture position: " + redTexture.getX() + ", " + redTexture.getY());
         batch.end();
         //---------------------------------------------------
@@ -565,57 +625,6 @@ public class LevelOne implements Screen {
             }
         }
 
-        /*
-// Add this in your render method or during world initialization
-world.setContactListener(new ContactListener() {
-    @Override
-    public void beginContact(Contact contact) {
-        // Get the two fixtures involved in the collision
-        Fixture fixtureA = contact.getFixtureA();
-        Fixture fixtureB = contact.getFixtureB();
-
-        // Check if any of the fixtures belong to Wood or Concrete
-        handleCollision(fixtureA, fixtureB);
-        handleCollision(fixtureB, fixtureA);
-    }
-
-    @Override
-    public void endContact(Contact contact) {
-        // Not needed for this logic
-    }
-
-    @Override
-    public void preSolve(Contact contact, Manifold oldManifold) {
-        // Not needed for this logic
-    }
-
-    @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-        // Not needed for this logic
-    }
-
-    private void handleCollision(Fixture fixtureA, Fixture fixtureB) {
-        // Check if fixtureA belongs to Wood
-        if (fixtureA.getBody().getUserData() instanceof Wood) {
-            Wood wood = (Wood) fixtureA.getBody().getUserData();
-            wood.incrementHitCount();
-            if (wood.getHitCount() >= 2) {
-                wood.markForRemoval();
-            }
-        }
-
-        // Check if fixtureA belongs to Concrete
-        if (fixtureA.getBody().getUserData() instanceof Concrete) {
-            Concrete concrete = (Concrete) fixtureA.getBody().getUserData();
-            concrete.incrementHitCount();
-            if (concrete.getHitCount() >= 3) {
-                concrete.markForRemoval();
-            }
-        }
-    }
-});
-         */
-
     }
 
 
@@ -647,7 +656,7 @@ world.setContactListener(new ContactListener() {
         pig2Texture.dispose();
         pig3Texture.dispose();
         yellowTexture.dispose();
-        redTexture.getTexture().dispose();
+        redTexture.dispose();
         blackTexture.dispose();
         overlayStage.dispose();
 
