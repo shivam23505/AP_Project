@@ -36,19 +36,32 @@ import java.util.Objects;
 
 public class Concrete extends Block{
     public Sprite sprite;
+    public static int GiveDamage;
     public Concrete(Rectangle rect,Body body1){
         super(rect,body1);
         sprite = new Sprite(new Texture("concrete_blockAB.jpeg"));
         sprite.setSize(width,height);
         sprite.setOriginCenter();
+        GiveDamage = 2;
+        setHealth();
     }
     protected FixtureDef createFixtureDef(PolygonShape shape){
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
-        fdef.density=0.5f;
+        fdef.density=2f;
         fdef.friction=0.4f;
         fdef.restitution=0f;
         return fdef;
+    }
+
+    @Override
+    public void setHealth() {
+        currHealth = 30;
+    }
+
+    @Override
+    public void getHealth() {
+
     }
 }
 

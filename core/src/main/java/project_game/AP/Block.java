@@ -35,11 +35,12 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public abstract class Block {
+public abstract class Block implements Health {
     protected Body body;
     protected float width;
     protected float height;
-
+    protected int currHealth;
+    protected boolean MarkForRemoval;
 
     public Block(Rectangle rect, Body body) {
         this.body = body;
@@ -51,8 +52,11 @@ public abstract class Block {
         FixtureDef fdef = createFixtureDef(shape);
         body.createFixture(fdef);
         shape.dispose();
+        MarkForRemoval = false;
     }
-
+    public void destroyMe(){
+        MarkForRemoval = true;
+    }
     protected abstract FixtureDef createFixtureDef(PolygonShape shape);
     public Body getBody() {
         return body;
@@ -62,5 +66,8 @@ public abstract class Block {
     }
     public float getHeight() {
         return height;
+    }
+    public void decreaseHealth(int damage){
+        currHealth-=damage;
     }
 }

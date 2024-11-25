@@ -36,20 +36,35 @@ import java.util.Objects;
 
 public class Wood extends Block{
     public Sprite sprite;
+    public static int GiveDamage;
     public Wood(Rectangle rect,Body body1){
         super(rect,body1);
         sprite = new Sprite(new Texture("wooden_textureAB.png"));
         sprite.setSize(width,height);
         sprite.setOriginCenter();
+        GiveDamage = 1;
+        setHealth();
     }
+
+
     @Override
     protected FixtureDef createFixtureDef(PolygonShape shape){
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
-        fdef.density=0.5f;
+        fdef.density=1.5f;
         fdef.friction=0.4f;
         fdef.restitution=0f;
         return fdef;
+    }
+
+    @Override
+    public void setHealth() {
+        currHealth = 20;
+    }
+
+    @Override
+    public void getHealth() {
+
     }
 }
 

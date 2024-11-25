@@ -36,6 +36,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 
 public class LevelOne implements Screen {
@@ -70,7 +71,6 @@ public class LevelOne implements Screen {
     private float elapsed=0;
     private boolean background_changedw=false;
     private boolean background_changedl=false;
-
     //PIGS BIRD SLIGNSHOT TEXTURES
     Pigs pig1;
     Pigs pig2;
@@ -88,10 +88,10 @@ public class LevelOne implements Screen {
     private Texture wood_texture,concrete_texture;
 
     private ShapeRenderer shapeRenderer;
-
+    private ListenerClass CollisionHandler;
     //WORLD BODIES ARRAY LISTS
-    ArrayList<Wood> wood=new ArrayList<Wood>();
-    ArrayList<Concrete> concrete=new ArrayList<Concrete>();
+    static ArrayList<Wood> wood=new ArrayList<Wood>();
+    static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
 
     //MOVIG PROJECTILE BODY VARIABLES
     Body projectileBody,movingbody;
@@ -99,9 +99,9 @@ public class LevelOne implements Screen {
     private Vector2 startPoint = new Vector2(150,180); // Drag start
     private Vector2 endPoint = new Vector2();   // Drag end
     private boolean isDragging = false;
-
     public LevelOne(Structure game) {
         this.game = game;
+
         background = new Texture("Level_Two_bg.jpg");
         camera = new OrthographicCamera();
         viewport = new FitViewport(800, 480, camera);
@@ -194,7 +194,8 @@ public class LevelOne implements Screen {
         world = new World(new Vector2(0, -9.81f), false);
         b2dr = new Box2DDebugRenderer();
         WorldUtils.createGround(world);
-
+        CollisionHandler = new ListenerClass();
+        world.setContactListener(CollisionHandler);
 //        System.out.println("Number of layers: " + tiledMap.getLayers().getCount());
         // Iterate over objects in the second layer (adjust layer if necessary)
         for (int layerIndex = 1; layerIndex <= 2; layerIndex++) {
@@ -211,8 +212,10 @@ public class LevelOne implements Screen {
 //                PolygonShape shape = new PolygonShape();
 //                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
                 body.setAwake(true);
+
 //                 Fixture definition
                 if(layerIndex==1){
+                      Wood NewWood = new Wood(rect,body);
 //                    FixtureDef fdef = new FixtureDef();
 //                    fdef.shape = shape;
 //                    fdef.density=1f;
@@ -221,12 +224,13 @@ public class LevelOne implements Screen {
 //                    body.createFixture(fdef);
 
                     // Dispose the shape after using it
-
-                    wood.add(new Wood(rect,body));
+                    body.setUserData(NewWood);
+                    wood.add(NewWood);
 //                    wood_width.add(rect.getWidth());
 //                    wood_height.add(rect.getHeight());
                 }
                 if(layerIndex==2){
+                    Concrete newConcrete = new Concrete(rect,body);
 //                    FixtureDef fdef = new FixtureDef();
 //                    fdef.shape = shape;
 //                    fdef.density=2f;
@@ -237,8 +241,8 @@ public class LevelOne implements Screen {
 //                    // Dispose the shape after using it
 //                    shape.dispose();
 
-
-                    concrete.add(new Concrete(rect,body));
+                    body.setUserData(newConcrete);
+                    concrete.add(newConcrete);
 //                    concrete_height.add(rect.getHeight());
 //                    concrete_width.add(rect.getWidth());
                 }
@@ -253,7 +257,7 @@ public class LevelOne implements Screen {
         circleShape.setRadius(30f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circleShape;
-        fixtureDef.density = 1f;
+        fixtureDef.density = 1.5f;
         fixtureDef.friction = 0.3f;
         projectileBody.createFixture(fixtureDef);
         projectileBody.setAwake(false);
@@ -353,7 +357,7 @@ public class LevelOne implements Screen {
         batch.setProjectionMatrix(camera.combined);
     }
     public void drawTrajectory(float x, float y) {
-        System.out.println(x+"  "+y);
+//        System.out.println(x+"  "+y);
         Vector2 velo = new Vector2(400/PPM, 50/PPM );
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -374,8 +378,6 @@ public class LevelOne implements Screen {
         update(delta);
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
-
-
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.batch.draw(background, 0, 0, 800, 480);
@@ -399,24 +401,44 @@ public class LevelOne implements Screen {
         pig3.render(batch);
         blackBird.render(batch);yellowBird.render(batch);
         slingshot.render(batch);
-        int count=0;
 
-        for(Wood b:wood){
+
+        Iterator<Wood> iterator = wood.iterator();
+
+        while (iterator.hasNext()) {
+            Wood b = iterator.next();
+            if (b.MarkForRemoval) {
+                iterator.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
             b.sprite.setOriginCenter();
-            b.sprite.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
-            count++;
+
+
         }
-        count=0;
+        Iterator<Concrete> iterator2 = concrete.iterator();
 
-        for(Concrete b:concrete){
+        while (iterator2.hasNext()) {
+            Concrete b = iterator2.next();
+            if (b.MarkForRemoval) {
+                iterator2.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
             b.sprite.setOriginCenter();
-//            b.sprite.setSize(b.getWidth(),b.getHeight());
-            b.sprite.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
-            count++;
+
         }
         batch.end();
         //-------------------------------------------------------------------
@@ -543,7 +565,56 @@ public class LevelOne implements Screen {
             }
         }
 
+        /*
+// Add this in your render method or during world initialization
+world.setContactListener(new ContactListener() {
+    @Override
+    public void beginContact(Contact contact) {
+        // Get the two fixtures involved in the collision
+        Fixture fixtureA = contact.getFixtureA();
+        Fixture fixtureB = contact.getFixtureB();
 
+        // Check if any of the fixtures belong to Wood or Concrete
+        handleCollision(fixtureA, fixtureB);
+        handleCollision(fixtureB, fixtureA);
+    }
+
+    @Override
+    public void endContact(Contact contact) {
+        // Not needed for this logic
+    }
+
+    @Override
+    public void preSolve(Contact contact, Manifold oldManifold) {
+        // Not needed for this logic
+    }
+
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+        // Not needed for this logic
+    }
+
+    private void handleCollision(Fixture fixtureA, Fixture fixtureB) {
+        // Check if fixtureA belongs to Wood
+        if (fixtureA.getBody().getUserData() instanceof Wood) {
+            Wood wood = (Wood) fixtureA.getBody().getUserData();
+            wood.incrementHitCount();
+            if (wood.getHitCount() >= 2) {
+                wood.markForRemoval();
+            }
+        }
+
+        // Check if fixtureA belongs to Concrete
+        if (fixtureA.getBody().getUserData() instanceof Concrete) {
+            Concrete concrete = (Concrete) fixtureA.getBody().getUserData();
+            concrete.incrementHitCount();
+            if (concrete.getHitCount() >= 3) {
+                concrete.markForRemoval();
+            }
+        }
+    }
+});
+         */
 
     }
 
