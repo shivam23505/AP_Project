@@ -215,7 +215,7 @@ public class LevelOne implements Screen {
 
 //                 Fixture definition
                 if(layerIndex==1){
-                      Wood NewWood = new Wood(rect,body);
+                    Wood NewWood = new Wood(rect,body);
 //                    FixtureDef fdef = new FixtureDef();
 //                    fdef.shape = shape;
 //                    fdef.density=1f;
@@ -500,7 +500,7 @@ public class LevelOne implements Screen {
                     float angle = projectileBody.getAngle();         // Get current rotation
                     projectileBody.setTransform(position.x, position.y, angle);
 //                    Vector2 velocity = new Vector2(startPoint).sub(position).scl(5f); // Scale the speed
-                    Vector2 velocity = new Vector2(400f, 50f);
+                    Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*10, (startPoint.y+50-projectileBody.getPosition().y)*3);
                     projectileBody.setLinearVelocity(velocity);
                     return true;
                 }
