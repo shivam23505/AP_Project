@@ -378,10 +378,10 @@ public class LevelTwo implements Screen {
 //        yellowBird.render(batch);
         slingshot.render(batch);
         for(Wood b:wood){
-            woodTexture.setSize(b.getWidth(),b.getHeight());
-            woodTexture.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
-            woodTexture.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
-            woodTexture.draw(batch);
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition((b.getBody().getPosition().x)-(b.getWidth())/2, b.getBody().getPosition().y-(b.getHeight())/2);
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
         }
 //        for(Concrete b:concrete){
 //            concreteTexture.setSize(b.getWidth(),b.getHeight());
@@ -458,7 +458,7 @@ public class LevelTwo implements Screen {
 
         //DRAWING THE BIRD ON THE PROJECTILE BODY-----------
         batch.begin();
-
+        blackTexture.setOriginCenter();
         Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
         blackTexture.setPosition(bodyPosition.x - blackTexture.getWidth() / 2,
             bodyPosition.y - blackTexture.getHeight() / 2); // Center the texture
