@@ -22,6 +22,7 @@ continue_button.png
 continue_button_down.png
 exit_button.png
 exit_button_down.png
+hs_err_pid10904.log
 hs_err_pid11780.log
 hs_err_pid16144.log
 hs_err_pid20776.log

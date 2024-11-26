@@ -14,7 +14,7 @@ public class MediumPig extends Pigs {
     public static int GiveDamage;
     public MediumPig(Ellipse ellipse, Body body1){
         super(ellipse,body1);
-        sprite = new Sprite(new Texture("pig2-removebg-preview.png"));
+        sprite = new Sprite(new Texture("pig3-removebg-preview.png"));
         sprite.setSize(width,height);
         sprite.setOriginCenter();
         GiveDamage = 1;

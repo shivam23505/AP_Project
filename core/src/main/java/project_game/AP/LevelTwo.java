@@ -87,7 +87,7 @@ public class LevelTwo implements Screen {
     static ArrayList<Wood> wood=new ArrayList<Wood>();
     static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
     static ArrayList<MediumPig> mediumPigs=new ArrayList<MediumPig>();
-    ShapeRenderer shapeRenderer;
+    private ShapeRenderer shapeRenderer;
     private ListenerClass CollisionHandler;
 
     //MOVING PROJECTILE BODY VARIABLES
@@ -108,6 +108,7 @@ public class LevelTwo implements Screen {
         viewport = new FitViewport(800, 480, camera);
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+        shapeRenderer = new ShapeRenderer();
         overlayStage = new Stage(new ScreenViewport());
         showOverlay = false;
 
@@ -127,13 +128,13 @@ public class LevelTwo implements Screen {
         blackTexture=new Texture("blackbird.png");
         blackBird=new Birds(blackTexture,8);
         slingshot = new Slingshot(sling);
-        RedSitting=new Sprite(new Texture("redbird.png"));
+        RedSitting=new Sprite(new Texture("redBird.png"));
         //PIGS BIRD SLINGSHOT POSITION SIZE SETTING
         batch=new SpriteBatch();
         blackBird.setSize(50,50);
         blackBird.setPosition(90,105);
         RedSitting.setSize(50,50);
-        RedSitting.setSize(45,105);
+        RedSitting.setPosition(45,105);
         slingshot.setSize(100,100);
         slingshot.setPosition(130,105);
 
@@ -289,6 +290,7 @@ public class LevelTwo implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Button clicked");
                 game.setScreen(new LevelSelector(game));
+                cleanup();
                 dispose();
             }
         });
@@ -403,7 +405,7 @@ public class LevelTwo implements Screen {
         b2dr.render(world, camera.combined);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        if(BirdCount<1){
+        if(BirdCount<=1){
             RedSitting.draw(batch);
         }
         slingshot.render(batch);
@@ -534,7 +536,7 @@ public class LevelTwo implements Screen {
         blackBird.sprite.setOriginCenter();
         Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
         blackBird.sprite.setPosition(bodyPosition.x - blackBird.sprite.getWidth() / 2,
-            bodyPosition.y - redBird.sprite.getHeight() / 2); // Center the texture
+            bodyPosition.y - blackBird.sprite.getHeight() / 2); // Center the texture
         blackBird.sprite.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
         blackBird.sprite.draw(batch); // Draw the texture
 
