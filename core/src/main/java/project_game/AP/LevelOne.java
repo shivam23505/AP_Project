@@ -62,7 +62,7 @@ public class LevelOne implements Screen {
 
     //Overlay
     private Stage overlayStage;
-    private boolean showOverlay;
+    private boolean showOverlay = false;
 
     // Constant for tile size (adjust according to your tile size)
     private static final float TILE_SIZE = 16.0f;
@@ -87,6 +87,7 @@ public class LevelOne implements Screen {
 
     private ShapeRenderer shapeRenderer;
     private ListenerClass CollisionHandler;
+
     //WORLD BODIES ARRAY LISTS
     static ArrayList<Wood> wood=new ArrayList<Wood>();
     static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
@@ -94,14 +95,16 @@ public class LevelOne implements Screen {
     static ArrayList<LargePig> largepig = new ArrayList<LargePig>();
 
     //MOVIG PROJECTILE BODY VARIABLES
-    Body projectileBody,movingbody;
+    Body projectileBody;
     private static final float PPM = 16f; // Pixels per meter
     static Vector2 startPoint = new Vector2(150,180); // Drag start
-    private Vector2 endPoint = new Vector2();   // Drag end
     private boolean isDragging = false;
 
     private int BirdCount = 0;
     private boolean levelFlag=false;
+    private boolean trajectoryFlag = false;
+    private Vector2 currPoint = new Vector2();
+
 
     public LevelOne(Structure game) {
         this.game = game;
@@ -118,7 +121,6 @@ public class LevelOne implements Screen {
         pig1Texture=new Texture("pig1-removebg-preview.png");
         pig2Texture=new Texture("pig2-removebg-preview.png");
         pig3Texture=new Texture("pig1-removebg-preview.png");
-
 
         yellowTexture = new Texture("yellowBird.png");
         YellowSitting = new Sprite(new Texture("yellowBird.png"));
@@ -192,8 +194,7 @@ public class LevelOne implements Screen {
         WorldUtils.createGround(world);
         CollisionHandler = new ListenerClass();
         world.setContactListener(CollisionHandler);
-//        System.out.println("Number of layers: " + tiledMap.getLayers().getCount());
-        // Iterate over objects in the second layer (adjust layer if necessary)
+
         for (int layerIndex = 1; layerIndex <= 2; layerIndex++) {
             for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(RectangleMapObject.class)) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -205,7 +206,6 @@ public class LevelOne implements Screen {
                 Body body = world.createBody(bdef);
                 body.setAwake(true);
 
-//                 Fixture definition
                 if(layerIndex==1){
                     Wood NewWood = new Wood(rect,body);
                     body.setUserData(NewWood);
@@ -242,8 +242,6 @@ public class LevelOne implements Screen {
                 }
             }
         }
-        System.out.println("SMALL PIG SIZE:"+ smallpig.size());
-        System.out.println("LARGE PIG SIZE:"+largepig.size());
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(90,105);
@@ -262,12 +260,6 @@ public class LevelOne implements Screen {
 
     }
     public void showPauseMenu(){
-//        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
-//        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
-//        Image overlayImage = new Image(overlayImageDrawable);
-//        overlayImage.setPosition(100, 0);
-//        overlayStage.addActor(overlayImage);
-
         Table backgroundTable = new Table();
         backgroundTable.setFillParent(true);
         backgroundTable.setBackground(overlayDrawable);  // Set the transparent background
@@ -286,7 +278,6 @@ public class LevelOne implements Screen {
                 showOverlay = false;
             }
         });
-//        overlayStage.addActor(continueButton);
 
         drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_save_btn.png")));
         ImageButton.ImageButtonStyle buttonStyle3 = new ImageButton.ImageButtonStyle();
@@ -311,8 +302,8 @@ public class LevelOne implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                System.out.println("Button clicked");
                 game.setScreen(new LevelSelector(game));
+                cleanup();
                 dispose();
             }
         });
@@ -353,26 +344,11 @@ public class LevelOne implements Screen {
         renderer.setView(camera);
         batch.setProjectionMatrix(camera.combined);
     }
-    public void drawTrajectory(float x, float y) {
-//        System.out.println(x+"  "+y);
-        Vector2 velo = new Vector2(400/PPM, 50/PPM );
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.WHITE);
 
-        for (int i = 0; i < 10; i++) {
 
-            shapeRenderer.circle(x, y, 20);
-
-            x += 2 * velo.x;
-            y += 2 * velo.y;
-            velo.y += 2 * (world.getGravity().y/PPM);
-        }
-        shapeRenderer.end();
-    }
     public void winGame(float delta){
         if(smallpig.size()==0 && largepig.size()==0){
-            System.out.println("YO");
             if(levelFlag==false){
                 elapsed=0;
                 levelFlag=true;
@@ -380,9 +356,9 @@ public class LevelOne implements Screen {
             elapsed+=delta;
             if(elapsed>=2){
                 LevelSelector.level1complete=true;
-                background = new Texture("LevelComplete.jpg");  // Change background
-                elapsed = 0;  // Reset the timer
-                background_changedw = true;}  // Set flag to avoid resetting on every frame
+                background = new Texture("LevelComplete.jpg");
+                elapsed = 0;
+                background_changedw = true;}
         }
     }
     public void loseGame(float delta){
@@ -399,9 +375,45 @@ public class LevelOne implements Screen {
                 background_changedl = true;}  // Set flag to avoid resetting on every frame
         }
     }
+    public void cleanup(){
+        Iterator<Wood> iterator = wood.iterator();
+        while (iterator.hasNext()) {
+            Wood b = iterator.next();
+            b.sprite.getTexture().dispose();
+            iterator.remove();
+            world.destroyBody(b.getBody());
+        }
+
+        Iterator<Concrete> iterator2 = concrete.iterator();
+        while (iterator2.hasNext()) {
+            Concrete b = iterator2.next();
+            b.sprite.getTexture().dispose();
+            iterator2.remove();
+            world.destroyBody(b.getBody());
+        }
+        Iterator<SmallPig> iterator3 = smallpig.iterator();
+        while (iterator3.hasNext()) {
+            SmallPig b = iterator3.next();
+            b.sprite.getTexture().dispose();
+            iterator3.remove();
+            world.destroyBody(b.getBody());
+        }
+
+        Iterator<LargePig> iterator4 = largepig.iterator();
+
+        while (iterator4.hasNext()) {
+            LargePig b = iterator4.next();
+            b.sprite.getTexture().dispose();
+            iterator4.remove();
+            world.destroyBody(b.getBody());
+        }
+    }
+
     @Override
     public void render(float delta) {
-        update(delta);
+        if (!showOverlay){
+            update(delta);
+        }
         // Clear the screen with a black color
         ScreenUtils.clear(0, 0, 0, 1);
         game.batch.setProjectionMatrix(camera.combined);
@@ -422,7 +434,6 @@ public class LevelOne implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-//        blackBird.render(batch);yellowBird.render(batch);
         if (BirdCount < 2){
             YellowSitting.draw(batch);
         }
@@ -431,9 +442,7 @@ public class LevelOne implements Screen {
         }
         slingshot.render(batch);
 
-
         Iterator<Wood> iterator = wood.iterator();
-
         while (iterator.hasNext()) {
             Wood b = iterator.next();
             if (b.MarkForRemoval) {
@@ -441,12 +450,8 @@ public class LevelOne implements Screen {
                 world.destroyBody(b.getBody());
                 continue;
             }
-            // Get the rightmost point in world coordinates
-            float screenRight = 800; // Adjust for pixel-to-meter ratio (PPM)
-
-            // Check if the object's position exceeds the rightmost point
+            float screenRight = 800;
             if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
-                // Constrain the position to the screen boundary
                 b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
             }
             b.sprite.setOriginCenter();
@@ -459,7 +464,6 @@ public class LevelOne implements Screen {
         }
 
         Iterator<Concrete> iterator2 = concrete.iterator();
-
         while (iterator2.hasNext()) {
             Concrete b = iterator2.next();
             if (b.MarkForRemoval) {
@@ -474,10 +478,9 @@ public class LevelOne implements Screen {
             );
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
-
         }
-        Iterator<SmallPig> iterator3 = smallpig.iterator();
 
+        Iterator<SmallPig> iterator3 = smallpig.iterator();
         while (iterator3.hasNext()) {
             SmallPig b = iterator3.next();
             if (b.MarkForRemoval) {
@@ -485,9 +488,7 @@ public class LevelOne implements Screen {
                 world.destroyBody(b.getBody());
                 continue;
             }
-
             if (b.getBody().getPosition().x + b.getWidth() / 2 > 800) {
-                // Constrain the position to the screen boundary
                 b.getBody().setTransform(800 - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
             }
             b.sprite.setOriginCenter();
@@ -499,7 +500,6 @@ public class LevelOne implements Screen {
             b.sprite.draw(batch);
         }
         Iterator<LargePig> iterator4 = largepig.iterator();
-
         while (iterator4.hasNext()) {
             LargePig b = iterator4.next();
             if (b.MarkForRemoval) {
@@ -508,7 +508,6 @@ public class LevelOne implements Screen {
                 continue;
             }
             if (b.getBody().getPosition().x + b.getWidth() / 2 > 800) {
-                // Constrain the position to the screen boundary
                 b.getBody().setTransform(800 - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
             }
             b.sprite.setOriginCenter();
@@ -526,100 +525,101 @@ public class LevelOne implements Screen {
         debugRenderer.render(world, camera.combined);
 
         //PAUSE BUTTON INPUT PROCESSOR HANDLE -----------------
-        if (showOverlay) {
-            Gdx.input.setInputProcessor(overlayStage);
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            showOverlay = true;
+            showPauseMenu();
+        }
+        if (showOverlay){
+            Gdx.input.setInputProcessor(overlayStage);
             overlayStage.act(Gdx.graphics.getDeltaTime());
             overlayStage.draw();
         }
-        else{
-            Gdx.input.setInputProcessor(stage);
-            overlayStage.clear();
-        }
         //---------------------------------------------------
+        if (!showOverlay){
 
-        //LAUNCH BIRD INPUT DRAGGING HANDLING------------------------------------
-        Gdx.input.setInputProcessor(new InputAdapter() {
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//                System.out.println(BirdCount);
-                if (BirdCount == 1){
-
-                    redBird.setTexture(yellowTexture,6);
-                }
-                else if (BirdCount == 2){
-                    redBird.setTexture(blackTexture,8);
-                }
-                projectileBody.setAwake(false);
-                projectileBody.setTransform(startPoint.x,startPoint.y,0);
-
-                return true;
-            }
-
-            @Override
-            public boolean touchDragged(int screenX, int screenY, int pointer) {
-
-                int maxDistance = 50; // radius of the circle
-                float centerX = startPoint.x;  // x-coordinate of the circle center
-                float centerY = startPoint.y;  // y-coordinate of the circle center
-                isDragging = true;
-                if (isDragging) {
-
-                    Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
-
-                    float dx = worldCoords.x - centerX;
-                    float dy = worldCoords.y - centerY;
-                    float distance = (float) Math.sqrt(dx * dx + dy * dy);
-                    if (distance > maxDistance) {
-                        float scale = maxDistance / distance; // Scale factor to bring the point within the circle
-                        worldCoords.x = centerX + dx * scale;
-                        worldCoords.y = centerY + dy * scale;
+            overlayStage.clear();
+            //LAUNCH BIRD INPUT DRAGGING HANDLING------------------------------------
+            Gdx.input.setInputProcessor(new InputAdapter() {
+                @Override
+                public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                    if (BirdCount == 1){
+                        redBird.setTexture(yellowTexture,6);
                     }
-                    projectileBody.setTransform(worldCoords.x, worldCoords.y, 0);
-                    drawTrajectory(worldCoords.x, worldCoords.y);
-                }
-
-                return true;
-            }
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                if (isDragging) {
-                    BirdCount++;
-                    isDragging = false;
-                    projectileBody.setAwake(true);
-                    Vector2 position = new Vector2(projectileBody.getPosition()); // Get current position
-                    float angle = projectileBody.getAngle();         // Get current rotation
-                    projectileBody.setTransform(position.x, position.y, angle);
-//                    Vector2 velocity = new Vector2(startPoint).sub(position).scl(5f); // Scale the speed
-                    Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*15, (startPoint.y+50-projectileBody.getPosition().y)*3);
-                    projectileBody.setLinearVelocity(velocity);
+                    else if (BirdCount == 2){
+                        redBird.setTexture(blackTexture,8);
+                    }
+                    projectileBody.setAwake(false);
+                    projectileBody.setTransform(startPoint.x,startPoint.y,0);
                     return true;
                 }
-                return true;
-            }
-        });
-        //--------------------------------------------------------------------------
 
+                @Override
+                public boolean touchDragged(int screenX, int screenY, int pointer) {
+
+                    int maxDistance = 50; // radius of the circle
+                    float centerX = startPoint.x;  // x-coordinate of the circle center
+                    float centerY = startPoint.y;  // y-coordinate of the circle center
+                    isDragging = true;
+                    if (isDragging) {
+                        trajectoryFlag = true;
+                        Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+                        float dx = worldCoords.x - centerX;
+                        float dy = worldCoords.y - centerY;
+                        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+                        if (distance > maxDistance) {
+                            float scale = maxDistance / distance; // Scale factor to bring the point within the circle
+                            worldCoords.x = centerX + dx * scale;
+                            worldCoords.y = centerY + dy * scale;
+                        }
+                        projectileBody.setTransform(worldCoords.x, worldCoords.y, 0);
+                        currPoint.x = worldCoords.x;
+                        currPoint.y = worldCoords.y;
+                    }
+
+                    return true;
+                }
+                @Override
+                public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                    if (isDragging) {
+                        trajectoryFlag = false;
+                        BirdCount++;
+                        isDragging = false;
+                        projectileBody.setAwake(true);
+                        Vector2 position = new Vector2(projectileBody.getPosition());
+                        float angle = projectileBody.getAngle();
+                        projectileBody.setTransform(position.x, position.y, angle);
+                        Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*35, (startPoint.y+50-projectileBody.getPosition().y)*15);
+                        projectileBody.setLinearVelocity(velocity);
+                        return true;
+                    }
+                    return true;
+                }
+            });
+        }
+        //--------------------------------------------------------------------------
+        if (trajectoryFlag){
+            slingshot.drawTrajectory(currPoint.x, currPoint.y,startPoint,PPM,world,shapeRenderer);
+        }
         //DRAWING THE BIRD ON THE PROJECTILE BODY-----------
         batch.begin();
+
         redBird.sprite.setOriginCenter();
         Vector2 bodyPosition = projectileBody.getPosition(); // Get the Box2D body position
         redBird.sprite.setPosition(bodyPosition.x - redBird.sprite.getWidth() / 2,
             bodyPosition.y - redBird.sprite.getHeight() / 2); // Center the texture
         redBird.sprite.setRotation((float) Math.toDegrees(projectileBody.getAngle())); // Set rotation
-//        drawTrajectory(bodyPosition.x,bodyPosition.y );
-
         redBird.sprite.draw(batch); // Draw the texture
-//        System.out.println("Texture position: " + redTexture.getX() + ", " + redTexture.getY());
+
         batch.end();
         //---------------------------------------------------
 
+        stage.act(Gdx.graphics.getDeltaTime());
 
-        stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
-        stage.draw();
+        //WINNING AND LOSING SCREEN HANDLING
         winGame(delta);
         loseGame(delta);
-        //WINNING AND LOSING SCREEN HANDLING
+
         if (background_changedw) {
             elapsed += delta;
             game.batch.begin();
@@ -627,6 +627,7 @@ public class LevelOne implements Screen {
             game.batch.end();
             if (elapsed >= 2) {
                 game.setScreen(new LevelSelector(game));// Transition to LevelSelector screen
+                cleanup();
                 dispose();
             }
         }
@@ -637,12 +638,11 @@ public class LevelOne implements Screen {
             game.batch.end();
             if (elapsed >= 2) {
                 game.setScreen(new LevelSelector(game));  // Transition to LevelSelector screen
+                cleanup();
                 dispose();
             }
         }
-
     }
-
 
     @Override
     public void resize(int width, int height) {
@@ -675,7 +675,6 @@ public class LevelOne implements Screen {
         redTexture.dispose();
         blackTexture.dispose();
         overlayStage.dispose();
-
         batch.dispose();
     }
 }

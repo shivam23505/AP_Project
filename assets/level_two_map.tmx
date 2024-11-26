@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="100" height="80" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="35">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="100" height="80" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="37">
  <tileset firstgid="1" source="main.tsx"/>
  <layer id="1" name="Tile Layer 1" width="100" height="80">
   <data encoding="base64" compression="gzip">
@@ -16,5 +16,13 @@
   <object id="32" x="752.182" y="1104" width="15.8182" height="63.8182"/>
   <object id="33" x="640.364" y="1104" width="15.2727" height="63.8182"/>
   <object id="34" x="624.55" y="1168.18" width="159.091" height="15.6364"/>
+ </objectgroup>
+ <objectgroup id="5" name="MediumPig">
+  <object id="35" x="684.25" y="1031" width="40" height="40">
+   <ellipse/>
+  </object>
+  <object id="36" x="684" y="1128" width="40" height="40">
+   <ellipse/>
+  </object>
  </objectgroup>
 </map>
