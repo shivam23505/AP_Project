@@ -101,7 +101,7 @@ public class LevelOne implements Screen {
     private boolean isDragging = false;
 
     private int BirdCount = 0;
-
+    private boolean levelFlag=false;
 
     public LevelOne(Structure game) {
         this.game = game;
@@ -242,6 +242,8 @@ public class LevelOne implements Screen {
                 }
             }
         }
+        System.out.println("SMALL PIG SIZE:"+ smallpig.size());
+        System.out.println("LARGE PIG SIZE:"+largepig.size());
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(90,105);
@@ -367,6 +369,35 @@ public class LevelOne implements Screen {
             velo.y += 2 * (world.getGravity().y/PPM);
         }
         shapeRenderer.end();
+    }
+    public void winGame(float delta){
+        if(smallpig.size()==0 && largepig.size()==0){
+            System.out.println("YO");
+            if(levelFlag==false){
+                elapsed=0;
+                levelFlag=true;
+            }
+            elapsed+=delta;
+            if(elapsed>=2){
+                LevelSelector.level1complete=true;
+                background = new Texture("LevelComplete.jpg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedw = true;}  // Set flag to avoid resetting on every frame
+        }
+    }
+    public void loseGame(float delta){
+        if((smallpig.size()!=0 || largepig.size()!=0) && BirdCount>=3){
+            if(levelFlag==false){
+                elapsed=0;
+                levelFlag=true;
+            }
+            elapsed+=delta;
+            if(elapsed>=12){
+                LevelSelector.level1complete=false;
+                background = new Texture("levelfailed.jpeg");  // Change background
+                elapsed = 0;  // Reset the timer
+                background_changedl = true;}  // Set flag to avoid resetting on every frame
+        }
     }
     @Override
     public void render(float delta) {
@@ -586,16 +617,9 @@ public class LevelOne implements Screen {
 
         stage.act(Gdx.graphics.getDeltaTime()); // Update the stage
         stage.draw();
-
+        winGame(delta);
+        loseGame(delta);
         //WINNING AND LOSING SCREEN HANDLING
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-            if (!background_changedw) {
-                LevelSelector.level1complete = true;
-                background = new Texture("LevelComplete.jpg");  // Change background
-                elapsed = 0;  // Reset the timer
-                background_changedw = true;  // Set flag to avoid resetting on every frame
-            }
-        }
         if (background_changedw) {
             elapsed += delta;
             game.batch.begin();
@@ -606,14 +630,6 @@ public class LevelOne implements Screen {
                 dispose();
             }
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            if (!background_changedl) {
-                background = new Texture("levelfailed.jpeg");  // Change background
-                elapsed = 0;  // Reset the timer
-                background_changedl = true;  // Set flag to avoid resetting on every frame
-            }
-        }
-
         if (background_changedl) {
             elapsed += delta;
             game.batch.begin();

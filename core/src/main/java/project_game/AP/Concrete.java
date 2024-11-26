@@ -64,4 +64,3 @@ public class Concrete extends Block{
         return currHealth;
     }
 }
-

@@ -59,7 +59,7 @@ public class Wood extends Block{
 
     @Override
     public void setHealth() {
-        currHealth = 20;
+        currHealth = 25;
     }
 
     @Override
@@ -67,4 +67,3 @@ public class Wood extends Block{
         return currHealth;
     }
 }
-

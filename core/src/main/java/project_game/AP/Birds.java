@@ -28,11 +28,12 @@ public class Birds{
     }
     public void setTexture(Texture texture, int damage){
         Texture t = getTexture();
+        if(t!=texture){
         sprite.setTexture(texture);
         sprite.setSize(60,60);
         sprite.setOriginCenter();
         Birds.damage=damage;
-        t.dispose();
+        t.dispose();}
     }
     public int getDamage(){
         return Birds.damage;
