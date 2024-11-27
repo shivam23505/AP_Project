@@ -62,6 +62,11 @@ public class ListenerClass implements ContactListener {
                 currWood.decreaseHealth(Wood.GiveDamage);
 //                System.out.println("AFTER WOOD2 "+currWood.currHealth);
             }
+            else if (fixtureB.getBody().getUserData() instanceof Glass) {
+//                System.out.println("BEFORE WOOD2 "+currWood.currHealth);
+                currWood.decreaseHealth(Glass.GiveDamage);
+//                System.out.println("AFTER WOOD2 "+currWood.currHealth);
+            }
             else if (fixtureB.getBody().getUserData() instanceof Birds) {
 //                System.out.println("BEFORE WOOD3 "+currWood.currHealth);
                 Birds currBirds = (Birds) fixtureB.getBody().getUserData();
@@ -104,9 +109,42 @@ public class ListenerClass implements ContactListener {
             }
         }
 
-        //check if fixture A belongs to pig
-        if (fixtureA.getBody().getUserData() instanceof Pigs && posBX<posX && (posBY>posY
+        if (fixtureA.getBody().getUserData() instanceof Glass && posBX<posX && (posBY>posY
             || fixtureB.getBody().getUserData() instanceof Birds)){
+//            System.out.println("hello");
+            Glass currGlass = (Glass) fixtureA.getBody().getUserData();
+
+            if (fixtureB.getBody().getUserData() instanceof Concrete) {
+//                System.out.println("BEFORE WOOD1 "+currWood.currHealth);
+                currGlass.decreaseHealth(Concrete.GiveDamage);
+//                System.out.println("AFTER WOOD1 "+currWood.currHealth);
+            }
+            else if (fixtureB.getBody().getUserData() instanceof Wood) {
+//                System.out.println("BEFORE WOOD2 "+currWood.currHealth);
+                currGlass.decreaseHealth(Wood.GiveDamage);
+//                System.out.println("AFTER WOOD2 "+currWood.currHealth);
+            }
+            else if (fixtureB.getBody().getUserData() instanceof Glass) {
+//                System.out.println("BEFORE WOOD2 "+currWood.currHealth);
+                currGlass.decreaseHealth(Glass.GiveDamage);
+//                System.out.println("AFTER WOOD2 "+currWood.currHealth);
+            }
+            else if (fixtureB.getBody().getUserData() instanceof Birds) {
+//                System.out.println("BEFORE WOOD3 "+currWood.currHealth);
+                Birds currBirds = (Birds) fixtureB.getBody().getUserData();
+                currGlass.decreaseHealth(currBirds.getDamage());
+//                System.out.println("AFTER WOOD3 "+currWood.currHealth);
+//                System.out.println(currWood.currHealth);
+            }
+
+            if (currGlass.currHealth <=0) {
+                currGlass.destroyMe();
+                System.out.println("WOOD LIST SIZE: "+LevelOne.wood.size());
+            }
+        }
+
+        //check if fixture A belongs to pig
+        if (fixtureA.getBody().getUserData() instanceof Pigs && posBX<posX &&fixtureB.getBody().getUserData() instanceof Birds){
 
             Pigs currPigs = (Pigs) fixtureA.getBody().getUserData(); // Retrieve user data
 
@@ -127,8 +165,8 @@ public class ListenerClass implements ContactListener {
             }
             if (currPigs.currHealth <=0) {
                 currPigs.destroyMe();
-                System.out.println("S PIG SIZE: "+LevelOne.smallpig.size());
-                System.out.println("L PIG SIZE:"+LevelOne.largepig.size());
+//                System.out.println("S PIG SIZE: "+LevelThree.smallpig.size());
+//                System.out.println("L PIG SIZE:"+LevelThree.largepig.size());
             }
         }
     }

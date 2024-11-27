@@ -33,35 +33,39 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
-public class LevelTwo implements Screen {
-    private Box2DDebugRenderer debugRenderer;
-    final Structure game;
-    private Texture background;
-    private OrthographicCamera camera;
-    private Viewport viewport;
-    private BitmapFont font;
-    private SpriteBatch batch;
+public class LevelTwo implements Screen, Serializable {
+    transient private Box2DDebugRenderer debugRenderer;
+    transient final Structure game;
+    transient private Texture background;
+    transient private OrthographicCamera camera;
+    transient private Viewport viewport;
+    transient private BitmapFont font;
+    transient private SpriteBatch batch;
 
     //Font Varibales
-    private FreeTypeFontGenerator fontGenerator;
-    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
-    private Stage stage;
+    transient private FreeTypeFontGenerator fontGenerator;
+    transient private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    transient private Stage stage;
 
     // Tiled map variables
-    private TmxMapLoader mapLoader;
-    private TiledMap tiledMap;
-    private OrthogonalTiledMapRenderer renderer;
+    transient private TmxMapLoader mapLoader;
+    transient private TiledMap tiledMap;
+    transient private OrthogonalTiledMapRenderer renderer;
 
     // Box2d Variables
-    private World world;
-    private Box2DDebugRenderer b2dr;
+    transient private World world;
+    transient private Box2DDebugRenderer b2dr;
 
     //Overlay
-    private Stage overlayStage;
+    transient private Stage overlayStage;
     private boolean showOverlay=false;
 
     // Constant for tile size (adjust according to your tile size)
@@ -73,15 +77,15 @@ public class LevelTwo implements Screen {
     //PIGS BIRD SLIGNSHOT TEXTURES
     Birds redBird,yellowBird,blackBird;
     Slingshot slingshot;
-    private Texture pig1Texture,pig2Texture;
-    private Texture redTexture,blackTexture;
-    private Sprite woodTexture,concreteTexture;
-    private Texture yellowTexture;
-    private Texture sling;
-    private Sprite RedSitting;
-    private Drawable overlayDrawable;
+    transient private Texture pig3Texture;
+    transient private Texture redTexture,blackTexture;
+    transient private Sprite woodTexture,concreteTexture;
+//    transient private Texture yellowTexture;
+    transient private Texture sling;
+    transient private Sprite RedSitting;
+    transient private Drawable overlayDrawable;
 
-    private Texture wood_texture,concrete_texture;
+    transient private Texture wood_texture,concrete_texture;
 
     //WORLD BODIES ARRAY LISTS
     static ArrayList<Wood> wood=new ArrayList<Wood>();
@@ -91,7 +95,7 @@ public class LevelTwo implements Screen {
     private ListenerClass CollisionHandler;
 
     //MOVING PROJECTILE BODY VARIABLES
-    Body projectileBody;
+    transient Body projectileBody;
     private static final float PPM = 100f; // Pixels per meter
     private Vector2 startPoint = new Vector2(150,180); // Drag start
     private boolean isDragging = false;
@@ -99,7 +103,7 @@ public class LevelTwo implements Screen {
     private int BirdCount = 0;
     private boolean levelFlag=false;
     private boolean trajectoryFlag = false;
-    private Vector2 currPoint = new Vector2();
+    transient private Vector2 currPoint = new Vector2();
 
     public LevelTwo(Structure game) {
         this.game = game;
@@ -113,8 +117,8 @@ public class LevelTwo implements Screen {
         showOverlay = false;
 
         //PIGS BIRD SLINGSHOT INITIALIZATION
-        pig1Texture=new Texture("pig3-removebg-preview.png");
-        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig3-removebg-preview.png");
+//        pig2Texture=new Texture("pig2-removebg-preview.png");
 //        pig3Texture=new Texture("pig1-removebg-preview.png");yellowTexture = new Texture("yellowBird.png");
         wood_texture=new Texture("wooden_textureAB.png");
         woodTexture = new Sprite(new Texture("wooden_textureAB.png"));
@@ -238,13 +242,132 @@ public class LevelTwo implements Screen {
         projectileBody.setAwake(false);
         circleShape.dispose();
     }
-    public void showPauseMenu(){
-//        Texture overlayImageTexture = new Texture(Gdx.files.internal("menubg3.png"));
-//        Drawable overlayImageDrawable = new TextureRegionDrawable(overlayImageTexture);
-//        Image overlayImage = new Image(overlayImageDrawable);
-//        overlayImage.setPosition(100, 0);
-//        overlayStage.addActor(overlayImage);
 
+    public LevelTwo(SavedLevel level, Structure game) {
+        this.game = game;
+
+        // Load basic level settings
+        BirdCount = level.getBirdCount();
+        mediumPigs = level.getMediumPigs();
+        wood = level.getWood();
+        concrete = level.getConcrete();
+
+        // Initialize other properties
+        background = new Texture("Level_Two_bg.jpg");
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(800, 480, camera);
+        stage = new Stage();
+        overlayStage = new Stage(new ScreenViewport());
+        shapeRenderer = new ShapeRenderer();
+        batch = new SpriteBatch();
+        mapLoader = new TmxMapLoader();
+        tiledMap = mapLoader.load("Level_two_map.tmx");
+        renderer = new OrthogonalTiledMapRenderer(tiledMap);
+
+        // Initialize bird and slingshot assets
+        blackTexture = new Texture("blackBird.png");
+        blackBird = new Birds(blackTexture, 6);
+        slingshot = new Slingshot(new Texture("slingshot.png"));
+        slingshot.setSize(100,100);
+        slingshot.setPosition(130,105);
+        pig3Texture=new Texture("pig3-removebg-preview.png");
+
+
+        redTexture = new Texture("redBird.png");
+        RedSitting = new Sprite(new Texture("redBird.png"));
+        RedSitting.setSize(50,50);
+        RedSitting.setPosition(45,100);
+
+
+        // Initialize the Box2D world
+        world = new World(new Vector2(0, -9.81f), false);
+        b2dr = new Box2DDebugRenderer();
+        WorldUtils.createGround(world);
+        CollisionHandler = new ListenerClass();
+        world.setContactListener(CollisionHandler);
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Arial.ttf"));
+        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size = 40;
+        fontParameter.borderWidth = 2;
+        fontParameter.color = Color.WHITE;
+        font = fontGenerator.generateFont(fontParameter);
+
+        Texture transparentPixel = createTransparentPixel(0f, 0f, 0f, 0.5f);
+        overlayDrawable = new TextureRegionDrawable(new TextureRegion(transparentPixel));
+
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton.png")));
+        ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+        buttonStyle.imageUp = drawable;
+        buttonStyle.imageDown = new TextureRegionDrawable(new TextureRegion(new Texture("pauseButton_down.png")));
+        ImageButton pauseButton = new ImageButton(buttonStyle);
+        pauseButton.setSize(50, 50);
+
+//        Table table = new Table();
+//        table.setFillParent(true);
+//        table.top().left();
+//        table.add(pauseButton).size(100,100);
+//        stage.addActor(table);
+//        pauseButton.setZIndex(stage.getActors().size-1);
+//        pauseButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                System.out.println("Button clicked");
+//                showOverlay = true;
+//                showPauseMenu();
+//            }
+//        });
+
+
+        // Create saved wood bodies
+        for (Wood savedWood : wood) {
+            BodyDef bdef = new BodyDef();
+            bdef.type = BodyDef.BodyType.DynamicBody;
+            bdef.position.set(savedWood.getPosX(),savedWood.getPosY());
+            Body body = world.createBody(bdef);
+            body.setUserData(savedWood);
+            savedWood.recreateBody(body);
+        }
+
+        // Create saved concrete bodies
+        for (Concrete savedConcrete : concrete) {
+            BodyDef bdef = new BodyDef();
+            bdef.type = BodyDef.BodyType.DynamicBody;
+            bdef.position.set(savedConcrete.getPosX(),savedConcrete.getPosY());
+            Body body = world.createBody(bdef);
+            body.setUserData(savedConcrete);
+            savedConcrete.recreateBody(body);
+        }
+
+        // Create saved small pigs
+        for (MediumPig savedPig : mediumPigs) {
+            BodyDef bdef = new BodyDef();
+            bdef.type = BodyDef.BodyType.DynamicBody;
+            bdef.position.set(savedPig.getPosX(),savedPig.getPosY());
+            Body body = world.createBody(bdef);
+            body.setUserData(savedPig);
+            savedPig.recreateBody(body);
+        }
+
+        // Create the bird's projectile body
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(90, 105);
+        projectileBody = world.createBody(bodyDef);
+        projectileBody.setUserData(redBird);
+
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(30f);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = circleShape;
+        fixtureDef.density = 1.5f;
+        fixtureDef.friction = 0.3f;
+        projectileBody.createFixture(fixtureDef);
+        projectileBody.setAwake(false);
+        circleShape.dispose();
+    }
+
+    public void showPauseMenu(){
         Table backgroundTable = new Table();
         backgroundTable.setFillParent(true);
         backgroundTable.setBackground(overlayDrawable);  // Set the transparent background
@@ -263,7 +386,6 @@ public class LevelTwo implements Screen {
                 showOverlay = false;
             }
         });
-//        overlayStage.addActor(continueButton);
 
         drawable = new TextureRegionDrawable(new TextureRegion(new Texture("menu_save_btn.png")));
         ImageButton.ImageButtonStyle buttonStyle3 = new ImageButton.ImageButtonStyle();
@@ -274,7 +396,38 @@ public class LevelTwo implements Screen {
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                SavedLevel savedLevel=new SavedLevel(BirdCount,LevelSelector.level1complete,LevelSelector.level2complete
+                    ,LevelSelector.level3complete,new ArrayList<>(),mediumPigs,new ArrayList<>(),wood,concrete,new ArrayList<Glass>(),2);
+                try{
+                    // if savedGame1.ser exists, try to save to savedGame2.ser, else save to savedGame3.ser else save to savedGame4.ser else save to savedGame1.ser
+                    FileOutputStream fileOut = null;
+                    if (Gdx.files.local("savedGame1.ser").exists()) {
+                        if (Gdx.files.local("savedGame2.ser").exists()) {
+                            if (Gdx.files.local("savedGame3.ser").exists()) {
+                                fileOut = new FileOutputStream("savedGame1.ser");
+                            } else {
+                                fileOut = new FileOutputStream("savedGame3.ser");
+                                LoadGame.game3available = true;
+                            }
+                        } else {
+                            fileOut = new FileOutputStream("savedGame2.ser");
+                            LoadGame.game2available = true;
+                        }
+                    } else {
+                        fileOut = new FileOutputStream("savedGame1.ser");
+                        LoadGame.game1available = true;
+                    }
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(savedLevel);
+                    out.close();
+                    fileOut.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 System.out.println("Clicked! GAME STATE SAVED!!");
+                cleanup();
+                dispose();
+                game.setScreen(new MainMenuScreen(game));
             }
         });
 
@@ -288,7 +441,6 @@ public class LevelTwo implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Button clicked");
                 game.setScreen(new LevelSelector(game));
                 cleanup();
                 dispose();
@@ -327,19 +479,19 @@ public class LevelTwo implements Screen {
 
     public void update(float delta) {
         camera.update();
-        world.step(1/60f,6,2);
+        world.step(1/120f,6,2);
         renderer.setView(camera);
         batch.setProjectionMatrix(camera.combined);
     }
     public void winGame(float delta){
-        if(mediumPigs.size()==0 && mediumPigs.size()==0){
+        if(mediumPigs.size()==0){
             System.out.println("YO");
             if(levelFlag==false){
                 elapsed=0;
                 levelFlag=true;
             }
             elapsed+=delta;
-            if(elapsed>=2){
+            if(elapsed>=8){
                 LevelSelector.level2complete=true;
                 background = new Texture("LevelComplete.jpg");
                 elapsed = 0;
@@ -347,13 +499,13 @@ public class LevelTwo implements Screen {
         }
     }
     public void loseGame(float delta){
-        if((mediumPigs.size()!=0 || mediumPigs.size()!=0) && BirdCount>=2){
+        if((mediumPigs.size()!=0 ) && BirdCount>=2){
             if(levelFlag==false){
                 elapsed=0;
                 levelFlag=true;
             }
             elapsed+=delta;
-            if(elapsed>=12){
+            if(elapsed>=12 && !mediumPigs.isEmpty()){
                 LevelSelector.level2complete=false;
                 background = new Texture("levelfailed.jpeg");  // Change background
                 elapsed = 0;  // Reset the timer
@@ -409,46 +561,9 @@ public class LevelTwo implements Screen {
             RedSitting.draw(batch);
         }
         slingshot.render(batch);
-        Iterator<Wood> iterator = wood.iterator();
-        while (iterator.hasNext()) {
-            Wood b = iterator.next();
-            if (b.MarkForRemoval) {
-                iterator.remove();
-                world.destroyBody(b.getBody());
-                continue;
-            }
-            float screenRight = 800;
-            if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
-                b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
-            }
-            b.sprite.setOriginCenter();
-            b.sprite.setPosition(
-                b.getBody().getPosition().x - b.getWidth() / 2,
-                b.getBody().getPosition().y - b.getHeight() / 2
-            );
-            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
-            b.sprite.draw(batch);
-        }
-        Iterator<MediumPig> iterator2 = mediumPigs.iterator();
-        while (iterator2.hasNext()) {
-            MediumPig b = iterator2.next();
-            if (b.MarkForRemoval) {
-                iterator2.remove();
-                world.destroyBody(b.getBody());
-                continue;
-            }
-            float screenRight = 800;
-            if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
-                b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
-            }
-            b.sprite.setOriginCenter();
-            b.sprite.setPosition(
-                b.getBody().getPosition().x - b.getWidth() / 2,
-                b.getBody().getPosition().y - b.getHeight() / 2
-            );
-            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
-            b.sprite.draw(batch);
-        }
+        Wood.drawMe(wood,world,batch);
+        MediumPig.drawMe(mediumPigs,world,batch);
+
         batch.end();
         //-------------------------------------------------------------------
 
@@ -485,7 +600,7 @@ public class LevelTwo implements Screen {
                 @Override
                 public boolean touchDragged(int screenX, int screenY, int pointer) {
 
-                    int maxDistance = 50; // radius of the circle
+                    int maxDistance = 80; // radius of the circle
                     float centerX = startPoint.x;  // x-coordinate of the circle center
                     float centerY = startPoint.y;  // y-coordinate of the circle center
                     isDragging = true;
@@ -517,7 +632,7 @@ public class LevelTwo implements Screen {
                         Vector2 position = new Vector2(projectileBody.getPosition());
                         float angle = projectileBody.getAngle();
                         projectileBody.setTransform(position.x, position.y, angle);
-                        Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*35, (startPoint.y+50-projectileBody.getPosition().y)*15);
+                        Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*700, (startPoint.y+50-projectileBody.getPosition().y)*300);
                         projectileBody.setLinearVelocity(velocity);
                         return true;
                     }
@@ -598,9 +713,7 @@ public class LevelTwo implements Screen {
         if(renderer!=null){renderer.dispose();}
         if(world!=null){world.dispose();}
         if(b2dr!=null){b2dr.dispose();}
-        pig1Texture.dispose();
-        pig2Texture.dispose();
-//        pig3Texture.dispose();
+        pig3Texture.dispose();
         redTexture.dispose();
         blackTexture.dispose();
         overlayStage.dispose();

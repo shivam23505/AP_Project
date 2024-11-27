@@ -6,14 +6,14 @@
   </data>
  </layer>
  <objectgroup id="2" name="wood">
-  <object id="2" x="672" y="1087.25" width="32.5" height="97.5"/>
-  <object id="3" x="800.5" y="1087.5" width="31.25" height="96.75"/>
+  <object id="2" x="608" y="1087.25" width="32.5" height="97.5"/>
+  <object id="3" x="736.5" y="1087.5" width="31.25" height="96.75"/>
  </objectgroup>
  <objectgroup id="3" name="Glass">
-  <object id="5" x="688" y="1071.5" width="128.25" height="16"/>
+  <object id="5" x="624" y="1071.5" width="128.25" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="MediumPig">
-  <object id="6" x="729.5" y="1030.75" width="40" height="40">
+  <object id="6" x="658" y="1011.5" width="60" height="60">
    <ellipse/>
   </object>
  </objectgroup>

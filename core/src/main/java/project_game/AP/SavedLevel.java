@@ -11,10 +11,13 @@ public class SavedLevel implements Serializable{
     private ArrayList<LargePig> largePigs;
     private ArrayList<Wood> wood;
     private ArrayList<Concrete> concrete;
+    private ArrayList<Glass>glass;
     private int levelNo;
+
+    //For level1
     public SavedLevel(int birdCount, boolean level1complete, boolean level2complete, boolean level3complete,
                       ArrayList<SmallPig> smallPigs, ArrayList<MediumPig> mediumPigs, ArrayList<LargePig> largePigs,
-                      ArrayList<Wood> wood, ArrayList<Concrete> concrete, int levelNo) {
+                      ArrayList<Wood> wood, ArrayList<Concrete> concrete,ArrayList<Glass>glass, int levelNo) {
         this.birdCount = birdCount;
         this.level1complete = level1complete;
         this.level2complete = level2complete;
@@ -24,6 +27,7 @@ public class SavedLevel implements Serializable{
         this.largePigs = largePigs;
         this.wood = wood;
         this.concrete = concrete;
+        this.glass = glass;
         this.levelNo = levelNo;
     }
 
@@ -49,5 +53,11 @@ public class SavedLevel implements Serializable{
 
     public ArrayList<SmallPig> getSmallPigs() {
         return smallPigs;
+    }
+
+    public ArrayList<Glass>getGlass() {return glass;}
+
+    public int getLevelNo(){
+        return levelNo;
     }
 }

@@ -2,13 +2,18 @@ package project_game.AP;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.World;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class LargePig extends Pigs implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -43,12 +48,42 @@ public class LargePig extends Pigs implements Serializable {
 
     @Override
     public void setHealth() {
-        currHealth = 7;
+        currHealth = 15;
     }
 
     @Override
     public int getHealth() {
         return currHealth;
     }
+    static public void drawMe(ArrayList<LargePig>largepig, World world, SpriteBatch batch){
 
+        Iterator<LargePig> iterator4 = largepig.iterator();
+        while (iterator4.hasNext()) {
+            LargePig b = iterator4.next();
+            if(b.sprite==null){
+                b.sprite=new Sprite(new Texture("pig1-removebg-preview.png"));
+                b.sprite.setSize(b.width, b.height);
+                b.sprite.setOriginCenter();
+
+            }
+            if (b.MarkForRemoval) {
+                iterator4.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > 800) {
+                b.getBody().setTransform(800 - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
+            b.posX=b.sprite.getX();
+            b.posY=b.sprite.getY();
+            b.setAngle((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
+        }
+    }
 }

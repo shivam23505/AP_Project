@@ -31,56 +31,53 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
-import java.io.*;
 
-public class Concrete extends Block implements Serializable {
-//    private static final long serialVersionUID = 1L;
-
-    transient public Sprite sprite;
-    public String spriteTexturePath="concrete_blockAB.jpeg";
+public class Glass extends Block implements Serializable {
+    public String spriteTexturePath="Glass_plank.png";// Store the texture path for serialization
+    transient public Sprite sprite=new Sprite(new Texture(spriteTexturePath));
     public static int GiveDamage;
-
-    public Concrete(Rectangle rect, Body body1) {
-        super(rect, body1);
+    public Glass(Rectangle rect,Body body1){
+        super(rect,body1);
         initializeSprite();
-        GiveDamage = 3;
+        GiveDamage = 2;
         setHealth();
     }
-
     private void initializeSprite() {
         sprite = new Sprite(new Texture(spriteTexturePath));
         sprite.setSize(width, height);
         sprite.setOriginCenter();
     }
 
-    protected FixtureDef createFixtureDef(PolygonShape shape) {
+    @Override
+    protected FixtureDef createFixtureDef(PolygonShape shape){
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
-        fdef.density = 2f;
-        fdef.friction = 0.4f;
-        fdef.restitution = 0f;
+        fdef.density=1f;
+        fdef.friction=0.4f;
+        fdef.restitution=0f;
         return fdef;
     }
 
     @Override
     public void setHealth() {
-        currHealth = 30;
+        currHealth = 20;
     }
 
     @Override
     public int getHealth() {
         return currHealth;
     }
-
-    static public void drawMe(ArrayList<Concrete>concrete,World world,SpriteBatch batch) {
-        Iterator<Concrete> iterator2 = concrete.iterator();
+    static public void drawMe(ArrayList<Glass>glass, World world, SpriteBatch batch){
+        Iterator<Glass> iterator2 = glass.iterator();
         while (iterator2.hasNext()) {
-            Concrete b = iterator2.next();
+            Glass b = iterator2.next();
             if(b.sprite==null){
-                b.sprite=new Sprite(new Texture("concrete_blockAB.jpeg"));
+                b.sprite=new Sprite(new Texture("glass_plank.png"));
                 b.sprite.setSize(b.width, b.height);
                 b.sprite.setOriginCenter();
             }
@@ -101,6 +98,6 @@ public class Concrete extends Block implements Serializable {
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
         }
-    }
 
+    }
 }

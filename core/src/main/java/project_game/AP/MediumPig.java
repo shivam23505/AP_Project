@@ -2,13 +2,17 @@ package project_game.AP;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.World;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class MediumPig extends Pigs implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -43,12 +47,33 @@ public class MediumPig extends Pigs implements Serializable {
 
     @Override
     public void setHealth() {
-        currHealth = 6;
+        currHealth = 12;
     }
 
     @Override
     public int getHealth() {
         return currHealth;
     }
-
+    static public void drawMe(ArrayList<MediumPig>mediumPigs, World world, SpriteBatch batch){
+        Iterator<MediumPig> iterator2 = mediumPigs.iterator();
+        while (iterator2.hasNext()) {
+            MediumPig b = iterator2.next();
+            if (b.MarkForRemoval) {
+                iterator2.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
+            float screenRight = 800;
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
+                b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
+        }
+    }
 }

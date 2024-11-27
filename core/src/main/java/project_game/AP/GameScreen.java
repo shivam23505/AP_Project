@@ -79,19 +79,8 @@ public class GameScreen implements Screen {
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("BUTTON CLICKED!! LOAD GAME SCREEN ");
-                SavedLevel savedLevel=null;
-                try {
-                    FileInputStream fis = new FileInputStream("savedGame2.ser");
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-                    savedLevel = (SavedLevel) ois.readObject();
-                }
-                catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                LevelOne inGameScreen = new LevelOne(savedLevel, game);
+                game.setScreen(new LoadGame(game));
                 dispose();
-                game.setScreen(inGameScreen);
             }
         });
         TextButton quitButton = new TextButton("QUIT", textButtonStyle);

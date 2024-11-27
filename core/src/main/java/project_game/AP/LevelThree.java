@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.*;
 
-public class LevelOne implements Screen, Serializable {
+public class LevelThree implements Screen, Serializable {
     transient private Box2DDebugRenderer debugRenderer;
     transient final Structure game;
     transient private Texture background;
@@ -69,29 +69,28 @@ public class LevelOne implements Screen, Serializable {
     private boolean background_changedl=false;
     //PIGS BIRD SLIGNSHOT TEXTURES
 
-    Birds redBird;
+    Birds redBird,yellowBird,blackBird;
     Slingshot slingshot;
-    transient private Texture pig3Texture;
+    transient private Texture pig1Texture,pig2Texture,pig3Texture;
     transient private Texture redTexture;
-    transient private Sprite woodTexture,glassTexture;
+    transient private Sprite woodTexture,concreteTexture;
     transient private Texture yellowTexture,blackTexture;
 
-    transient private Sprite BlackSitting,YellowSitting;
+    transient private Sprite BlackSitting,YellowSitting,RedSitting;
     transient private Texture sling;
 
     transient private Drawable overlayDrawable;
 
-    transient private Texture wood_texture,glass_texture;
+    transient private Texture wood_texture,concrete_texture;
 
     transient private ShapeRenderer shapeRenderer;
     transient private ListenerClass CollisionHandler;
 
     //WORLD BODIES ARRAY LISTS
     static ArrayList<Wood> wood=new ArrayList<Wood>();
-//    static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
-    static ArrayList<Glass> glass=new ArrayList<Glass>();
-//    static ArrayList<SmallPig> smallpig = new ArrayList<SmallPig>();
-    static ArrayList<MediumPig> mediumpig = new ArrayList<MediumPig>();
+    static ArrayList<Concrete> concrete=new ArrayList<Concrete>();
+    static ArrayList<SmallPig> smallpig = new ArrayList<SmallPig>();
+    static ArrayList<LargePig> largepig = new ArrayList<LargePig>();
 
     //MOVING PROJECTILE BODY VARIABLES
     transient Body projectileBody;
@@ -105,7 +104,7 @@ public class LevelOne implements Screen, Serializable {
     transient private Vector2 currPoint = new Vector2();
 
 
-    public LevelOne(Structure game) {
+    public LevelThree(Structure game) {
         this.game = game;
 
         background = new Texture("Level_Two_bg.jpg");
@@ -117,7 +116,9 @@ public class LevelOne implements Screen, Serializable {
         showOverlay = false;
         shapeRenderer = new ShapeRenderer();
         //PIGS BIRD SLINGSHOT INITIALIZATION
-        pig3Texture=new Texture("pig3-removebg-preview.png");
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig1-removebg-preview.png");
 
         yellowTexture = new Texture("yellowBird.png");
         YellowSitting = new Sprite(new Texture("yellowBird.png"));
@@ -126,9 +127,9 @@ public class LevelOne implements Screen, Serializable {
         wood_texture=new Texture("wooden_textureAB.png");
         woodTexture = new Sprite(new Texture("wooden_textureAB.png"));
         woodTexture.setOriginCenter();
-        glass_texture=new Texture("glass_plank.png");
-        glassTexture=new Sprite(new Texture("glass_plank.png"));
-        glassTexture.setOriginCenter();
+        concrete_texture=new Texture("concrete_blockAB.jpeg");
+        concreteTexture=new Sprite(new Texture("concrete_blockAB.jpeg"));
+        concreteTexture.setOriginCenter();
         sling =new Texture("slingshot.png");
 
         redTexture = new Texture("redBird.png");
@@ -165,25 +166,25 @@ public class LevelOne implements Screen, Serializable {
         ImageButton pauseButton = new ImageButton(buttonStyle);
         pauseButton.setSize(50, 50);
 
-//        Table table = new Table();
-//        table.setFillParent(true);
-//        table.top().left();
-//        table.add(pauseButton).size(100,100);
-//        stage.addActor(table);
-//        pauseButton.setZIndex(stage.getActors().size-1);
-//        pauseButton.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                System.out.println("Button clicked");
-//                showOverlay = true;
-//                showPauseMenu();
-//            }
-//        });
+        Table table = new Table();
+        table.setFillParent(true);
+        table.top().left();
+        table.add(pauseButton).size(100,100);
+        stage.addActor(table);
+        pauseButton.setZIndex(stage.getActors().size-1);
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Button clicked");
+                showOverlay = true;
+                showPauseMenu();
+            }
+        });
 
         //TILE MAP AND BOX2D WORLD CODE
         // Load the tilemap and set the renderer with the correct scale
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("Level3_structure.tmx");
+        tiledMap = mapLoader.load("Level1at4.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         world = new World(new Vector2(0, -9.81f), false);
@@ -209,13 +210,13 @@ public class LevelOne implements Screen, Serializable {
                     wood.add(NewWood);
                 }
                 if(layerIndex==2){
-                    Glass newGlass = new Glass(rect,body);
-                    body.setUserData(newGlass);
-                    glass.add(newGlass);
+                    Concrete newConcrete = new Concrete(rect,body);
+                    body.setUserData(newConcrete);
+                    concrete.add(newConcrete);
                 }
             }
         }
-        for (int layerIndex = 3; layerIndex <= 3; layerIndex++) {
+        for (int layerIndex = 3; layerIndex <= 4; layerIndex++) {
             for (MapObject object : tiledMap.getLayers().get(layerIndex).getObjects().getByType(EllipseMapObject.class)) {
                 Ellipse ellipse = ((EllipseMapObject) object).getEllipse();
                 BodyDef bdef = new BodyDef();
@@ -226,9 +227,17 @@ public class LevelOne implements Screen, Serializable {
                 Body body = world.createBody(bdef);
                 body.setAwake(true);
 
-                MediumPig NewPig = new MediumPig(ellipse,body);
-                body.setUserData(NewPig);
-                mediumpig.add(NewPig);
+//                 Fixture definition
+                if(layerIndex==3){
+                    SmallPig NewPig = new SmallPig(ellipse,body);
+                    body.setUserData(NewPig);
+                    smallpig.add(NewPig);
+                }
+                if(layerIndex==4){
+                    LargePig NewPig = new LargePig(ellipse,body);
+                    body.setUserData(NewPig);
+                    largepig.add(NewPig);
+                }
             }
         }
         BodyDef bodyDef = new BodyDef();
@@ -248,14 +257,15 @@ public class LevelOne implements Screen, Serializable {
         circleShape.dispose();
 
     }
-    public LevelOne(SavedLevel level, Structure game) {
+    public LevelThree(SavedLevel level, Structure game) {
         this.game = game;
 
         // Load basic level settings
         BirdCount = level.getBirdCount();
-        mediumpig = level.getMediumPigs();
+        smallpig = level.getSmallPigs();
+        largepig = level.getLargePigs();
         wood = level.getWood();
-        glass = level.getGlass();
+        concrete = level.getConcrete();
 
         // Initialize other properties
         background = new Texture("Level_Two_bg.jpg");
@@ -266,7 +276,7 @@ public class LevelOne implements Screen, Serializable {
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("Level3_structure.tmx");
+        tiledMap = mapLoader.load("Level1at4.tmx");
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         // Initialize bird and slingshot assets
@@ -275,9 +285,9 @@ public class LevelOne implements Screen, Serializable {
         slingshot = new Slingshot(new Texture("slingshot.png"));
         slingshot.setSize(100,100);
         slingshot.setPosition(130,105);
-//        pig1Texture=new Texture("pig1-removebg-preview.png");
-//        pig2Texture=new Texture("pig2-removebg-preview.png");
-        pig3Texture=new Texture("pig3-removebg-preview.png");
+        pig1Texture=new Texture("pig1-removebg-preview.png");
+        pig2Texture=new Texture("pig2-removebg-preview.png");
+        pig3Texture=new Texture("pig1-removebg-preview.png");
 
         yellowTexture = new Texture("yellowBird.png");
         YellowSitting = new Sprite(new Texture("yellowBird.png"));
@@ -339,17 +349,17 @@ public class LevelOne implements Screen, Serializable {
         }
 
         // Create saved concrete bodies
-        for (Glass savedGlass : glass) {
+        for (Concrete savedConcrete : concrete) {
             BodyDef bdef = new BodyDef();
             bdef.type = BodyDef.BodyType.DynamicBody;
-            bdef.position.set(savedGlass.getPosX(),savedGlass.getPosY());
+            bdef.position.set(savedConcrete.getPosX(),savedConcrete.getPosY());
             Body body = world.createBody(bdef);
-            body.setUserData(savedGlass);
-            savedGlass.recreateBody(body);
+            body.setUserData(savedConcrete);
+            savedConcrete.recreateBody(body);
         }
 
         // Create saved small pigs
-        for (MediumPig savedPig : mediumpig) {
+        for (SmallPig savedPig : smallpig) {
             BodyDef bdef = new BodyDef();
             bdef.type = BodyDef.BodyType.DynamicBody;
             bdef.position.set(savedPig.getPosX(),savedPig.getPosY());
@@ -358,15 +368,15 @@ public class LevelOne implements Screen, Serializable {
             savedPig.recreateBody(body);
         }
 
-//        // Create saved large pigs
-//        for (LargePig savedPig : largepig) {
-//            BodyDef bdef = new BodyDef();
-//            bdef.type = BodyDef.BodyType.DynamicBody;
-//            bdef.position.set(savedPig.getPosX(),savedPig.getPosY());
-//            Body body = world.createBody(bdef);
-//            body.setUserData(savedPig);
-//            savedPig.recreateBody(body);
-//        }
+        // Create saved large pigs
+        for (LargePig savedPig : largepig) {
+            BodyDef bdef = new BodyDef();
+            bdef.type = BodyDef.BodyType.DynamicBody;
+            bdef.position.set(savedPig.getPosX(),savedPig.getPosY());
+            Body body = world.createBody(bdef);
+            body.setUserData(savedPig);
+            savedPig.recreateBody(body);
+        }
 
         // Create the bird's projectile body
         BodyDef bodyDef = new BodyDef();
@@ -415,8 +425,7 @@ public class LevelOne implements Screen, Serializable {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 SavedLevel savedLevel=new SavedLevel(BirdCount,LevelSelector.level1complete,LevelSelector.level2complete
-                    ,LevelSelector.level3complete,new ArrayList<SmallPig>(),mediumpig,new ArrayList<LargePig>(),
-                    wood,new ArrayList<Concrete>(),glass,1);
+                ,LevelSelector.level3complete,smallpig,new ArrayList<MediumPig>(),largepig,wood,concrete,new ArrayList<Glass>(),3);
                 try{
                     // if savedGame1.ser exists, try to save to savedGame2.ser, else save to savedGame3.ser else save to savedGame4.ser else save to savedGame1.ser
                     FileOutputStream fileOut = null;
@@ -506,28 +515,28 @@ public class LevelOne implements Screen, Serializable {
 
 
     public void winGame(float delta){
-        if(mediumpig.isEmpty()){
-            if(!levelFlag){
+        if(smallpig.size()==0 && largepig.size()==0){
+            if(levelFlag==false){
                 elapsed=0;
                 levelFlag=true;
             }
             elapsed+=delta;
-            if(elapsed>=8){
-                LevelSelector.level1complete=true;
+            if(elapsed>=4){
+                LevelSelector.level3complete=true;
                 background = new Texture("LevelComplete.jpg");
                 elapsed = 0;
                 background_changedw = true;}
         }
     }
     public void loseGame(float delta){
-        if((!mediumpig.isEmpty() && BirdCount>=3)){
-            if(!levelFlag){
+        if((smallpig.size()!=0 || largepig.size()!=0) && BirdCount>=3){
+            if(levelFlag==false){
                 elapsed=0;
                 levelFlag=true;
             }
             elapsed+=delta;
-            if(elapsed>=12 && !mediumpig.isEmpty()){
-                LevelSelector.level1complete=false;
+            if(elapsed>=12 && (smallpig.size()!=0 || largepig.size()!=0)){
+                LevelSelector.level3complete=false;
                 background = new Texture("levelfailed.jpeg");  // Change background
                 elapsed = 0;  // Reset the timer
                 background_changedl = true;}  // Set flag to avoid resetting on every frame
@@ -542,18 +551,27 @@ public class LevelOne implements Screen, Serializable {
             world.destroyBody(b.getBody());
         }
 
-        Iterator<Glass> iterator2 = glass.iterator();
+        Iterator<Concrete> iterator2 = concrete.iterator();
         while (iterator2.hasNext()) {
-            Glass b = iterator2.next();
+            Concrete b = iterator2.next();
             b.sprite.getTexture().dispose();
             iterator2.remove();
             world.destroyBody(b.getBody());
         }
-        Iterator<MediumPig> iterator3 = mediumpig.iterator();
+        Iterator<SmallPig> iterator3 = smallpig.iterator();
         while (iterator3.hasNext()) {
-            MediumPig b = iterator3.next();
+            SmallPig b = iterator3.next();
             b.sprite.getTexture().dispose();
             iterator3.remove();
+            world.destroyBody(b.getBody());
+        }
+
+        Iterator<LargePig> iterator4 = largepig.iterator();
+
+        while (iterator4.hasNext()) {
+            LargePig b = iterator4.next();
+            b.sprite.getTexture().dispose();
+            iterator4.remove();
             world.destroyBody(b.getBody());
         }
     }
@@ -592,8 +610,9 @@ public class LevelOne implements Screen, Serializable {
         slingshot.render(batch);
 
         Wood.drawMe(wood,world,batch);
-        Glass.drawMe(glass,world,batch);
-        MediumPig.drawMe(mediumpig,world,batch);
+        Concrete.drawMe(concrete,world,batch);
+        SmallPig.drawMe(smallpig,world,batch);
+        LargePig.drawMe(largepig,world,batch);
 
         batch.end();
         //-------------------------------------------------------------------
@@ -744,6 +763,8 @@ public class LevelOne implements Screen, Serializable {
         if(renderer!=null){renderer.dispose();}
         if(world!=null){world.dispose();}
         if(b2dr!=null){b2dr.dispose();}
+        pig1Texture.dispose();
+        pig2Texture.dispose();
         pig3Texture.dispose();
         yellowTexture.dispose();
         redTexture.dispose();

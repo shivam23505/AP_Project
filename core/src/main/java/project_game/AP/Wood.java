@@ -34,6 +34,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 
 public class Wood extends Block implements Serializable {
@@ -70,5 +71,36 @@ public class Wood extends Block implements Serializable {
     @Override
     public int getHealth() {
         return currHealth;
+    }
+
+    static public void drawMe(ArrayList<Wood>wood,World world, SpriteBatch batch){
+        Iterator<Wood> iterator = wood.iterator();
+        while (iterator.hasNext()) {
+            Wood b = iterator.next();
+            if(b.sprite==null){
+                b.sprite=new Sprite(new Texture("wooden_TextureAB.png"));
+                b.sprite.setSize(b.width, b.height);
+                b.sprite.setOriginCenter();
+            }
+            if (b.MarkForRemoval) {
+                iterator.remove();
+                world.destroyBody(b.getBody());
+                continue;
+            }
+            float screenRight = 800;
+            if (b.getBody().getPosition().x + b.getWidth() / 2 > screenRight) {
+                b.getBody().setTransform(screenRight - b.getWidth() / 2, b.getBody().getPosition().y, b.getBody().getAngle());
+            }
+            b.sprite.setOriginCenter();
+            b.sprite.setPosition(
+                b.getBody().getPosition().x - b.getWidth() / 2,
+                b.getBody().getPosition().y - b.getHeight() / 2
+            );
+            b.posX=b.sprite.getX();
+            b.posY=b.sprite.getY();
+            b.setAngle((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
+            b.sprite.draw(batch);
+        }
     }
 }
