@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import java.io.*;
 
 public class GameScreen implements Screen {
     final Structure game;
@@ -79,6 +80,18 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("BUTTON CLICKED!! LOAD GAME SCREEN ");
+                SavedLevel savedLevel=null;
+                try {
+                    FileInputStream fis = new FileInputStream("savedGame2.ser");
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    savedLevel = (SavedLevel) ois.readObject();
+                }
+                catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                LevelOne inGameScreen = new LevelOne(savedLevel, game);
+                dispose();
+                game.setScreen(inGameScreen);
             }
         });
         TextButton quitButton = new TextButton("QUIT", textButtonStyle);

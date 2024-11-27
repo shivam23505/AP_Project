@@ -31,21 +31,26 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Wood extends Block{
-    public Sprite sprite;
+public class Wood extends Block implements Serializable {
+    public String spriteTexturePath="wooden_textureAB.png";// Store the texture path for serialization
+    transient public Sprite sprite=new Sprite(new Texture(spriteTexturePath));
     public static int GiveDamage;
     public Wood(Rectangle rect,Body body1){
         super(rect,body1);
-        sprite = new Sprite(new Texture("wooden_textureAB.png"));
-        sprite.setSize(width,height);
-        sprite.setOriginCenter();
+        initializeSprite();
         GiveDamage = 1;
         setHealth();
     }
-
+    private void initializeSprite() {
+        sprite = new Sprite(new Texture(spriteTexturePath));
+        sprite.setSize(width, height);
+        sprite.setOriginCenter();
+    }
 
     @Override
     protected FixtureDef createFixtureDef(PolygonShape shape){

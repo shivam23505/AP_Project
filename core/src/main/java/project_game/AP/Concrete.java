@@ -33,24 +33,34 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.io.*;
 
-public class Concrete extends Block{
-    public Sprite sprite;
+public class Concrete extends Block implements Serializable {
+//    private static final long serialVersionUID = 1L;
+
+    transient public Sprite sprite;
+    public String spriteTexturePath="concrete_blockAB.jpeg";
     public static int GiveDamage;
-    public Concrete(Rectangle rect,Body body1){
-        super(rect,body1);
-        sprite = new Sprite(new Texture("concrete_blockAB.jpeg"));
-        sprite.setSize(width,height);
-        sprite.setOriginCenter();
+
+    public Concrete(Rectangle rect, Body body1) {
+        super(rect, body1);
+        initializeSprite();
         GiveDamage = 2;
         setHealth();
     }
-    protected FixtureDef createFixtureDef(PolygonShape shape){
+
+    private void initializeSprite() {
+        sprite = new Sprite(new Texture(spriteTexturePath));
+        sprite.setSize(width, height);
+        sprite.setOriginCenter();
+    }
+
+    protected FixtureDef createFixtureDef(PolygonShape shape) {
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
-        fdef.density=2f;
-        fdef.friction=0.4f;
-        fdef.restitution=0f;
+        fdef.density = 2f;
+        fdef.friction = 0.4f;
+        fdef.restitution = 0f;
         return fdef;
     }
 
@@ -63,4 +73,5 @@ public class Concrete extends Block{
     public int getHealth() {
         return currHealth;
     }
+
 }
