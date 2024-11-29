@@ -2,6 +2,8 @@ package project_game.AP;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,12 +19,17 @@ public class MainMenuScreen implements Screen {
     OrthographicCamera camera;
     private Texture Background;
     private Texture play;
+    static Music music;
     public MainMenuScreen(final Structure game) {
         this.game = game;
         Background=new Texture("AngryBirdsBG2.jpg");
         play=new Texture("play.png");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
+        music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        if (Settings.isOn){
+            playMusic();
+        }
     }
 
     @Override
@@ -77,5 +84,12 @@ public class MainMenuScreen implements Screen {
         if (Background!=null){Background.dispose();}
         if (play!=null){play.dispose();}
     }
-
+    public static void playMusic(){
+        music.setLooping(true);
+        music.setVolume(.5f);
+        music.play();
+    }
+    public static void stopMusic(){
+        music.stop();
+    }
 }

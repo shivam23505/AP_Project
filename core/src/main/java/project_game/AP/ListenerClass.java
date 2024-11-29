@@ -1,11 +1,14 @@
 package project_game.AP;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.ArrayList;
 
 public class ListenerClass implements ContactListener {
     public int count = 0;
+    Sound pigSound = Gdx.audio.newSound(Gdx.files.internal("pigSound.mp3"));
 
     @Override
     public void endContact(Contact contact) {
@@ -150,17 +153,20 @@ public class ListenerClass implements ContactListener {
 
             if (fixtureB.getBody().getUserData() instanceof Concrete) {
                 currPigs.decreaseHealth(Concrete.GiveDamage);
+                playSound();
             }
             else if (fixtureB.getBody().getUserData() instanceof Wood){
                 System.out.println("collision with wood");
                 currPigs.decreaseHealth(Wood.GiveDamage);
                 System.out.println(currPigs.currHealth);
+                playSound();
             }
             else if (fixtureB.getBody().getUserData() instanceof Birds) {
                 System.out.println("collision with Birds");
                 Birds currBirds = (Birds) fixtureB.getBody().getUserData();
                 currPigs.decreaseHealth(currBirds.getDamage());
                 System.out.println(currPigs.currHealth);
+                playSound();
 //                System.out.println(currWood.currHealth);
             }
             if (currPigs.currHealth <=0) {
@@ -169,5 +175,8 @@ public class ListenerClass implements ContactListener {
 //                System.out.println("L PIG SIZE:"+LevelThree.largepig.size());
             }
         }
+    }
+    public void playSound(){
+        pigSound.play();
     }
 };

@@ -23,7 +23,7 @@ public class Settings implements Screen {
     Texture button;
     private Texture buttonOnTexture, buttonOffTexture;
     private ImageButton onOffButton;
-    private boolean isOn = false;
+    public static boolean isOn = true;
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private BitmapFont font;
@@ -38,8 +38,8 @@ public class Settings implements Screen {
         buttonOnTexture = new Texture("onbutton.jpg");
         buttonOffTexture = new Texture("offbutton.png");
         onOffButton = new ImageButton(
-            new TextureRegionDrawable(buttonOffTexture),
-            new TextureRegionDrawable(buttonOnTexture)
+            new TextureRegionDrawable(buttonOnTexture),
+            new TextureRegionDrawable(buttonOffTexture)
         );
         onOffButton.setSize(75,30);
         onOffButton.setPosition(350, 200);
@@ -50,8 +50,10 @@ public class Settings implements Screen {
                 isOn = !isOn;
                 if (isOn) {
                     onOffButton.getStyle().imageUp = new TextureRegionDrawable(buttonOnTexture);  // Show "on" texture
+                    MainMenuScreen.playMusic();
                 } else {
                     onOffButton.getStyle().imageUp = new TextureRegionDrawable(buttonOffTexture);  // Show "off" texture
+                    MainMenuScreen.stopMusic();
                 }
             }
         });
