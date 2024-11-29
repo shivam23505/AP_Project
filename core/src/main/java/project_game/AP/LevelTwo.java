@@ -493,7 +493,7 @@ public class LevelTwo implements Screen, Serializable {
             elapsed+=delta;
             if(elapsed>=8){
                 LevelSelector.level2complete=true;
-                background = new Texture("LevelComplete.jpg");
+                background = new Texture("LevelComplete.jpeg");
                 elapsed = 0;
                 background_changedw = true;}
         }

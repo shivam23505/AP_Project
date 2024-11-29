@@ -523,7 +523,7 @@ public class LevelThree implements Screen, Serializable {
             elapsed+=delta;
             if(elapsed>=4){
                 LevelSelector.level3complete=true;
-                background = new Texture("LevelComplete.jpg");
+                background = new Texture("LevelComplete.jpeg");
                 elapsed = 0;
                 background_changedw = true;}
         }

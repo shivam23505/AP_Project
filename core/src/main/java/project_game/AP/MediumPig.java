@@ -47,7 +47,7 @@ public class MediumPig extends Pigs implements Serializable {
 
     @Override
     public void setHealth() {
-        currHealth = 12;
+        currHealth = 9;
     }
 
     @Override

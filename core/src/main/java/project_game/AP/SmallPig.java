@@ -45,7 +45,7 @@ public class SmallPig extends Pigs implements Serializable {
 
     @Override
     public void setHealth() {
-        currHealth = 8;
+        currHealth = 5;
     }
 
     @Override

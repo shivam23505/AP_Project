@@ -256,7 +256,7 @@ public class LevelSelector implements Screen {
         }
         else{
             if(level2complete){
-                levelTwo.setStyle(style1);
+                levelTwo.setStyle(style2);
                 level3available=true;
             }
             else{
@@ -268,10 +268,10 @@ public class LevelSelector implements Screen {
         }
         else{
             if(level3complete){
-                levelThree.setStyle(style1);
+                levelThree.setStyle(style2);
             }
             else{
-                levelThree.setStyle(style2);
+                levelThree.setStyle(style);
             }
         }
     }

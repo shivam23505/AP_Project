@@ -95,7 +95,7 @@ public class LevelOne implements Screen, Serializable {
 
     //MOVING PROJECTILE BODY VARIABLES
     transient Body projectileBody;
-    private static final float PPM = 32f; // Pixels per meter
+    private static final float PPM = 16f; // Pixels per meter
     static Vector2 startPoint = new Vector2(150,180); // Drag start
     private boolean isDragging = false;
 
@@ -514,7 +514,7 @@ public class LevelOne implements Screen, Serializable {
             elapsed+=delta;
             if(elapsed>=8){
                 LevelSelector.level1complete=true;
-                background = new Texture("LevelComplete.jpg");
+                background = new Texture("LevelComplete.jpeg");
                 elapsed = 0;
                 background_changedw = true;}
         }
@@ -665,8 +665,10 @@ public class LevelOne implements Screen, Serializable {
                         Vector2 position = new Vector2(projectileBody.getPosition());
                         float angle = projectileBody.getAngle();
                         projectileBody.setTransform(position.x, position.y, angle);
-                        Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*700, (startPoint.y+50-projectileBody.getPosition().y)*300);
+                        Vector2 velocity = new Vector2((startPoint.x+50-projectileBody.getPosition().x)*700*PPM, (startPoint.y+50-projectileBody.getPosition().y)*300*PPM);
                         projectileBody.setLinearVelocity(velocity);
+                        redBird.sprite.setPosition(projectileBody.getPosition().x*PPM - redBird.sprite.getWidth() / 2,
+                            projectileBody.getPosition().y*PPM - redBird.sprite.getHeight() / 2);
                         return true;
                     }
                     return true;

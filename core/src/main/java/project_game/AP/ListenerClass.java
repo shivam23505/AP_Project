@@ -65,6 +65,11 @@ public class ListenerClass implements ContactListener {
                 currWood.decreaseHealth(Wood.GiveDamage);
 //                System.out.println("AFTER WOOD2 "+currWood.currHealth);
             }
+            else if (fixtureB.getBody().getUserData() instanceof Pigs){
+                System.out.println("COCCCCCCCCCCCCCCCCCCCCCCC");
+                Pigs currPigs = (Pigs) fixtureB.getBody().getUserData();
+                currPigs.decreaseHealth(Wood.GiveDamage);
+            }
             else if (fixtureB.getBody().getUserData() instanceof Glass) {
 //                System.out.println("BEFORE WOOD2 "+currWood.currHealth);
                 currWood.decreaseHealth(Glass.GiveDamage);
@@ -80,7 +85,7 @@ public class ListenerClass implements ContactListener {
 
             if (currWood.currHealth <=0) {
                 currWood.destroyMe();
-                System.out.println("WOOD LIST SIZE: "+LevelOne.wood.size());
+//                System.out.println("WOOD LIST SIZE: "+LevelOne.wood.size());
             }
         }
 
@@ -147,7 +152,7 @@ public class ListenerClass implements ContactListener {
         }
 
         //check if fixture A belongs to pig
-        if (fixtureA.getBody().getUserData() instanceof Pigs && posBX<posX &&fixtureB.getBody().getUserData() instanceof Birds){
+        if (fixtureA.getBody().getUserData() instanceof Pigs &&fixtureB.getBody().getUserData() instanceof Birds){
 
             Pigs currPigs = (Pigs) fixtureA.getBody().getUserData(); // Retrieve user data
 
@@ -156,13 +161,13 @@ public class ListenerClass implements ContactListener {
                 playSound();
             }
             else if (fixtureB.getBody().getUserData() instanceof Wood){
-                System.out.println("collision with wood");
+                System.out.println("collision with woodDDDDDD");
                 currPigs.decreaseHealth(Wood.GiveDamage);
                 System.out.println(currPigs.currHealth);
                 playSound();
             }
             else if (fixtureB.getBody().getUserData() instanceof Birds) {
-                System.out.println("collision with Birds");
+                System.out.println("CCCCollision with Birds");
                 Birds currBirds = (Birds) fixtureB.getBody().getUserData();
                 currPigs.decreaseHealth(currBirds.getDamage());
                 System.out.println(currPigs.currHealth);

@@ -46,7 +46,7 @@ public class Concrete extends Block implements Serializable {
     public Concrete(Rectangle rect, Body body1) {
         super(rect, body1);
         initializeSprite();
-        GiveDamage = 3;
+        GiveDamage = 6;
         setHealth();
     }
 

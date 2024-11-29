@@ -44,7 +44,7 @@ public class Wood extends Block implements Serializable {
     public Wood(Rectangle rect,Body body1){
         super(rect,body1);
         initializeSprite();
-        GiveDamage = 1;
+        GiveDamage = 7;
         setHealth();
     }
     private void initializeSprite() {

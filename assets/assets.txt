@@ -36,7 +36,7 @@ hs_err_pid9636.log
 Level1at1.tmx
 Level1at4.tmx
 Level3_structure.tmx
-LevelComplete.jpg
+LevelComplete.jpeg
 levelcompletedgreen.jpeg
 levelcompletedgrey.jpeg
 levelfailed.jpeg
@@ -66,8 +66,6 @@ pigSound.mp3
 play.png
 redBird.png
 savedGame1.ser
-savedGame2.ser
-savedGame3.ser
 settings page.jpeg
 settings_button.png
 settings_button_down.png
