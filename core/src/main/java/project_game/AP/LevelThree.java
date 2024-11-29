@@ -502,7 +502,7 @@ public class LevelThree implements Screen, Serializable {
 
     @Override
     public void show() {
-        debugRenderer = new Box2DDebugRenderer();
+//        debugRenderer = new Box2DDebugRenderer();
     }
 
     public void update(float delta) {
@@ -597,7 +597,7 @@ public class LevelThree implements Screen, Serializable {
         renderer.render();
 
         // RENDER BOX2D BODY LINES -------------------------------------------
-        b2dr.render(world, camera.combined);
+//        b2dr.render(world, camera.combined);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
@@ -617,7 +617,7 @@ public class LevelThree implements Screen, Serializable {
         batch.end();
         //-------------------------------------------------------------------
 
-        debugRenderer.render(world, camera.combined);
+//        debugRenderer.render(world, camera.combined);
 
         //PAUSE BUTTON INPUT PROCESSOR HANDLE -----------------
 

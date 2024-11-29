@@ -474,7 +474,7 @@ public class LevelTwo implements Screen, Serializable {
 
     @Override
     public void show() {
-        debugRenderer = new Box2DDebugRenderer();
+//        debugRenderer = new Box2DDebugRenderer();
     }
 
     public void update(float delta) {
@@ -554,7 +554,7 @@ public class LevelTwo implements Screen, Serializable {
         renderer.render();
 
         // RENDER BOX2D BODY LINES -------------------------------------------
-        b2dr.render(world, camera.combined);
+//        b2dr.render(world, camera.combined);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         if(BirdCount<=1){
@@ -567,7 +567,7 @@ public class LevelTwo implements Screen, Serializable {
         batch.end();
         //-------------------------------------------------------------------
 
-        debugRenderer.render(world, camera.combined);
+//        debugRenderer.render(world, camera.combined);
 
         //PAUSE BUTTON INPUT PROCESSOR HANDLE -----------------
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)){
