@@ -3,11 +3,6 @@
 A simple Angry Birds-inspired game created using Java with the LibGDX framework, featuring Box2D physics and custom fonts with FreeFontType generator.\
 This project is being developed as part of our course project for the Advanced Programming Course(CSE201) and will help us to understand the usage of OOPS concepts in real life applications.
 
-## Current Status
-This project has been developed according to the second deadline which required Static Gui.\
-Currently one can easily navigate between the game screen, the main menu, the level selector, settings, and the Levels.\
-We have created Triggers for win and lose screen, which can we triggered by pressing W and L respectively, on the levels.
-
 ## Structure
 - Core Module: Contains the code implementation of the application
 - Assets Module: Contains the game assets as images, tiled maps, etc.
@@ -18,8 +13,21 @@ We have created Triggers for win and lose screen, which can we triggered by pres
 - The settings can be accessed through the GameScreen
 - The level selector is followed allowing user to select the level.
 - The level selected is then opened with the pigs birds and structure.
+- Press P to open the Pause Menu.
 - Win and Lose screens can be triggered through these level screens.
-  
+- Levels can be saved through the pause menu.
+- Saved levels can be loaded from the load game on game screen.
+
+## Design Patterns
+### Template Pattern
+Template Pattern has been used in the blocks and pigs class independently by creating a fixture def from the parent class.\
+This allows us to get different variables and density as required.\
+Also health and damage have been set differently as required by the different blocks and pigs.
+
+### Proxy Pattern
+This pattern has been used while serialisation and saving the levels.\
+The saved class is called upon when loading the game and contains different attributes which are used when the load game is called.\
+
 ## Dependencies 
 Current status of the project requires the following dependencies - 
  - LibGDX - The main game development framework.
