@@ -95,7 +95,7 @@ public class LevelOne implements Screen, Serializable {
 
     //MOVING PROJECTILE BODY VARIABLES
     transient Body projectileBody;
-    private static final float PPM = 16f; // Pixels per meter
+    private static final float PPM = 32f; // Pixels per meter
     static Vector2 startPoint = new Vector2(150,180); // Drag start
     private boolean isDragging = false;
 

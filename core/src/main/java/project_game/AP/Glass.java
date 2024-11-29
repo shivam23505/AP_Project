@@ -40,11 +40,10 @@ import java.util.Objects;
 public class Glass extends Block implements Serializable {
     public String spriteTexturePath="Glass_plank.png";// Store the texture path for serialization
     transient public Sprite sprite=new Sprite(new Texture(spriteTexturePath));
-    public static int GiveDamage;
+    public static int GiveDamage=2;
     public Glass(Rectangle rect,Body body1){
         super(rect,body1);
         initializeSprite();
-        GiveDamage = 2;
         setHealth();
     }
     private void initializeSprite() {

@@ -23,16 +23,6 @@ continue_button_down.png
 exit_button.png
 exit_button_down.png
 Glass_plank.png
-hs_err_pid10904.log
-hs_err_pid11780.log
-hs_err_pid16144.log
-hs_err_pid20776.log
-hs_err_pid23868.log
-hs_err_pid30504.log
-hs_err_pid40816.log
-hs_err_pid41024.log
-hs_err_pid43660.log
-hs_err_pid9636.log
 Level1at1.tmx
 Level1at4.tmx
 Level3_structure.tmx
@@ -64,6 +54,7 @@ pig3.jpeg
 play.png
 redBird.png
 savedGame1.ser
+savedGame2.ser
 settings page.jpeg
 settings_button.png
 settings_button_down.png

@@ -15,8 +15,19 @@ dependencies {
   // FreeType native libraries for desktop (64-bit)
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.12.1:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  implementation 'junit:junit:4.13.1'
+  implementation 'junit:junit:4.13.1'
+  implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }
+sourceSets {
+  main {
+    resources {
+      srcDirs = ["assets"]
+    }
+  }
+}
+

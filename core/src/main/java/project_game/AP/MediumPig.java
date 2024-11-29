@@ -58,6 +58,11 @@ public class MediumPig extends Pigs implements Serializable {
         Iterator<MediumPig> iterator2 = mediumPigs.iterator();
         while (iterator2.hasNext()) {
             MediumPig b = iterator2.next();
+            if(b.sprite==null){
+                b.sprite=new Sprite(new Texture("pig3-removebg-preview.png"));
+                b.sprite.setSize(b.width, b.height);
+                b.sprite.setOriginCenter();
+            }
             if (b.MarkForRemoval) {
                 iterator2.remove();
                 world.destroyBody(b.getBody());
@@ -72,6 +77,8 @@ public class MediumPig extends Pigs implements Serializable {
                 b.getBody().getPosition().x - b.getWidth() / 2,
                 b.getBody().getPosition().y - b.getHeight() / 2
             );
+            b.posX=b.sprite.getX();
+            b.posY=b.sprite.getY();
             b.sprite.setRotation((float) Math.toDegrees(b.getBody().getAngle()));
             b.sprite.draw(batch);
         }

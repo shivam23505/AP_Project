@@ -35,7 +35,9 @@ public abstract class Pigs implements Health, Serializable {
         }
         MarkForRemoval = false;
     }
-
+    public Pigs(Body body) {
+        this.body = body;
+    }
     public void destroyMe() {
         MarkForRemoval = true;
     }
