@@ -3,6 +3,16 @@
 A simple Angry Birds-inspired game created using Java with the LibGDX framework, featuring Box2D physics and custom fonts with FreeFontType generator.\
 This project is being developed as part of our course project for the Advanced Programming Course(CSE201) and will help us to understand the usage of OOPS concepts in real life applications.
 
+## Summary
+This Java-based game, developed using the LibGDX framework, brings Angry Birds-style gameplay to life. Players engage with dynamic game elements such as birds, blocks, and pigs, leveraging Object-Oriented Programming (OOP) principles like classes, objects, inheritance, encapsulation, polymorphism, and abstraction.
+
+Key components include:
+
+-Game Classes: Core classes such as angryBirds, LevelSelector, LevelOne, LevelTwo, LevelThree, blocks, pigs, and bird define the gameplay structure and interactions.\
+-Screen Management: The project uses the Screen interface to implement different screens polymorphically, ensuring smooth transitions and consistent behavior across various game screens.\
+-Core Features: The angryBirds class initializes the game and sets the starting screen. The LevelSelector class manages the level selection UI, incorporating interactive elements to enhance the user experience.\
+<br>The game incorporates comprehensive unit tests to validate the functionality of individual components, ensuring reliability and stability throughout.
+
 ## Structure
 - Core Module: Contains the code implementation of the application
 - Assets Module: Contains the game assets as images, tiled maps, etc.
